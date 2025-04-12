@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -15,7 +16,13 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Hunt } from '../schemas/hunt.schema';
 import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
 import {
@@ -27,6 +34,7 @@ import {
   UpdateHuntBody,
   UpdateHuntSuccess,
 } from '../schemas/endpoints/updateHunt';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -63,6 +71,10 @@ type UpdateHunt = z.infer<typeof updateHuntSchema>;
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
+  /**
+   * CREATE
+   * @returns InterfaceHunt
+   */
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
     type: Hunt,
@@ -73,6 +85,8 @@ export class HuntController {
     status: 201,
     description: 'Hunt criada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
   async createHunt(
@@ -105,17 +119,29 @@ export class HuntController {
     });
   }
 
+  /**
+   * GET
+   * @params id
+   * @returns InterfaceHunt
+   */
   @ApiOperation({ summary: 'Busca de caçada por id' })
   @ApiResponse({
     type: FindHuntByIdSuccess,
     status: 200,
     description: 'Hunt encontrada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get(':id')
   async getOneHuntById(@Param('id') id: string) {
     return await this.huntService.getOneHuntById(id);
   }
 
+  /**
+   * PUT
+   * @params id
+   * @returns InterfaceHunt
+   */
   @ApiOperation({ summary: 'Atualização de uma caçada' })
   @ApiBody({
     type: UpdateHuntBody,
@@ -126,6 +152,8 @@ export class HuntController {
     status: 200,
     description: 'Sucesso na atualização da Hunt',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put(':id')
   async updateHunt(
     @Param('id') id: string,
@@ -138,12 +166,19 @@ export class HuntController {
     });
   }
 
+  /**
+   * GET
+   * @params userId
+   * @returns InterfaceHunt
+   */
   @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
   @ApiResponse({
     type: FindHuntsByIdUserSuccess,
     status: 200,
     description: 'Hunts do usuário encontradas com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('search/:userId')
   async getAllHuntsByUser(
     @Param('userId') userId: string,
@@ -153,12 +188,18 @@ export class HuntController {
     return await this.huntService.getAllHuntsByUser(userId, page, limit);
   }
 
+  /**
+   * DELETE
+   * @params id
+   */
   @ApiOperation({ summary: 'Deleção de uma caçada' })
   @ApiResponse({
     type: DeleteHuntSuccess,
     status: 200,
     description: 'Hunt deletada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
