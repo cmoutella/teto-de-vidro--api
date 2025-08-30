@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: tdv-api
-    container_name: tdV-teste
+    container_name: TdV-api
     env_file:
       - .env
     ports:
