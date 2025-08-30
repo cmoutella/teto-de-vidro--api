@@ -1,12 +1,5 @@
 FROM node:18-slim
 
-# Instala ferramentas essenciais
-RUN apt-get update && apt-get install -y \
-  wget \
-  curl \
-  gnupg \
-  ca-certificates
-
 WORKDIR /app
 
 COPY package.json ./
