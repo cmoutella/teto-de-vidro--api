@@ -18,6 +18,7 @@ ENV OPENCEP_API=https://opencep.com/v1
 RUN echo "\
   MONGO_URI=${MONGO_URI}\n\
   OPENCEP_API=${OPENCEP_API}\n\
+  JWT_SECRET=${JWT_SECRET}\n\
   " > .env
 
 RUN npm run build
