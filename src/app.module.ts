@@ -3,8 +3,6 @@ import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { MongooseModule } from '@nestjs/mongoose'
 
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { AccessLevelPoliciesModule } from './modules/accessLevelPolicies/access-level-policies.module'
 import { AddressModule } from './modules/address/address.module'
 import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
@@ -35,8 +33,6 @@ import { UsersCollectionModule } from './modules/user/user.module'
     AmenitiesCollectionModule,
     CommentsCollectionModule,
     InvitationModule
-  ],
-  controllers: [AppController],
-  providers: [AppService]
+  ]
 })
 export class AppModule {}
