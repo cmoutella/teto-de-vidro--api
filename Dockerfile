@@ -12,6 +12,8 @@ COPY tsconfig.build.json tsconfig.build.json
 
 ARG MONGO_URI
 ENV MONGO_URI=$MONGO_URI
+ARG JWT_SECRET
+ENV JWT_SECRET=$JWT_SECRET
 
 ENV OPENCEP_API=https://opencep.com/v1
 
