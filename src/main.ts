@@ -9,7 +9,7 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
 
-  const allowedOrigins = process.env.CORS_ORIGINS?.split(',')
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',')
   if (!allowedOrigins) {
     console.warn('⚠️  ALLOWED_ORIGINS não definido, usando localhost:3000')
     app.enableCors({
