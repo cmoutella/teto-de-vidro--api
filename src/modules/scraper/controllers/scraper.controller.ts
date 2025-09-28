@@ -22,11 +22,15 @@ export class ScraperController {
     }
 
     try {
-      const adData = await fetch(`${scraperService}/scraper?url=${url}`)
+      const response = await fetch(`${scraperService}/ad/?url=${url}`, {
+        method: 'GET'
+      })
 
-      if (!adData) {
+      if (!response.ok) {
         throw new Error('Scraper service error')
       }
+
+      const adData = await response.json()
 
       return adData
     } catch (_err) {
