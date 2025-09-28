@@ -8,10 +8,23 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
-  app.enableCors({
-    origin: ['*', 'http://localhost:3000'],
-    methods: ['POST', 'PUT', 'DELETE', 'GET']
-  })
+
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',')
+  if (!allowedOrigins) {
+    console.warn('⚠️  ALLOWED_ORIGINS não definido, usando localhost:3000')
+    app.enableCors({
+      origin: ['http://localhost:3000'],
+      methods: ['POST', 'PUT', 'DELETE', 'GET'],
+      credentials: true
+    })
+  } else {
+    app.enableCors({
+      origin: allowedOrigins,
+      methods: ['POST', 'PUT', 'DELETE', 'GET'],
+      credentials: true
+    })
+  }
+
   app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalInterceptors(new ResponseInterceptor())
   app.useGlobalInterceptors(new AuthInterceptor())
@@ -24,6 +37,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('/docs', app, documentFactory)
 
-  await app.listen(Number(process.env.PORT) || 3000)
+  await app.listen(Number(process.env.PORT) || 8080)
 }
 bootstrap()

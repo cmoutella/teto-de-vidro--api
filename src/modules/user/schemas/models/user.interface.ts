@@ -5,6 +5,7 @@ export type UserRole =
   | 'tester'
   | 'admin'
   | 'master'
+  | 'app'
 
 export interface InterfaceUser {
   id?: string

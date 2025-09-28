@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { CommentsCollectionModule } from './modules/comments/comments.module'
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { InvitationModule } from './modules/invitation/invitation.module'
+import { ScraperModule } from './modules/scraper/scraper.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
 import { UsersCollectionModule } from './modules/user/user.module'
 
@@ -32,7 +33,8 @@ import { UsersCollectionModule } from './modules/user/user.module'
     AddressModule,
     AmenitiesCollectionModule,
     CommentsCollectionModule,
-    InvitationModule
+    InvitationModule,
+    ScraperModule
   ]
 })
 export class AppModule {}

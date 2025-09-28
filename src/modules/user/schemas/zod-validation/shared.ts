@@ -6,5 +6,6 @@ export const USER_STATUS = [
   'regular',
   'tester',
   'admin',
-  'master'
+  'master',
+  'app'
 ] as const

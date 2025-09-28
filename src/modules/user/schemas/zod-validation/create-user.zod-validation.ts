@@ -19,3 +19,12 @@ export const createUserSchema = z.object({
 })
 
 export type CreateUser = z.infer<typeof createUserSchema>
+
+export const createApplicationSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+
+  password: z.string()
+})
+
+export type CreateApplication = z.infer<typeof createUserSchema>
