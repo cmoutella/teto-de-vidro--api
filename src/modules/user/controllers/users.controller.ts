@@ -37,6 +37,7 @@ import { InviteUserSchema } from '../schemas/endpoints/inviteUser'
 import { InterfaceUser } from '../schemas/models/user.interface'
 import { User } from '../schemas/user.schema'
 import {
+  CreateApplication,
   CreateUser,
   createUserSchema
 } from '../schemas/zod-validation/create-user.zod-validation'
@@ -98,6 +99,32 @@ export class UsersController {
       profession,
       gender,
       birthDate
+    })
+
+    return createdUser
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes(new EncryptPasswordPipe())
+  @UsePipes(new ZodValidationPipe(createUserSchema))
+  @ApiOperation({ summary: 'Cria uma nova aplicação' })
+  @ApiResponse({
+    type: CreateUserSuccess,
+    status: 201,
+    description: 'Aplicação criada com sucesso'
+  })
+  @Post('/new/application')
+  async createApplication(
+    @Body()
+    { email, name, password }: CreateApplication
+  ) {
+    const createdUser = await this.userService.createUser({
+      email,
+      name,
+      accessLevel: 1,
+      role: 'app',
+      password
     })
 
     return createdUser
