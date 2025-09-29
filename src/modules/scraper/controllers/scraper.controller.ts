@@ -4,8 +4,10 @@ import {
   InternalServerErrorException,
   Query,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors
 } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from '@src/modules/auth/services/auth.service'
 import { ApplicationUserService } from '@src/modules/user/services/application-user.service'
@@ -22,6 +24,7 @@ export class ScraperController {
     private readonly userService: ApplicationUserService
   ) {}
 
+  @UseGuards(AuthGuard)
   @ApiResponse({
     type: ScrapedAdData,
     status: 200,
