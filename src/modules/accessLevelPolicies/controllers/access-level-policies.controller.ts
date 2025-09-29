@@ -55,15 +55,19 @@ export class AccessLevelPoliciessController {
     @Body(new ZodValidationPipe(createLevelPoliciesSchema))
     body: CreateLevelPoliciesData
   ) {
-    const found = await this.accessPoliciesService.getByLevel(body.level)
+    try {
+      const found = await this.accessPoliciesService.getByLevel(body.level)
 
-    if (found) {
-      throw new ConflictException('Level de acesso já cadastrado')
+      if (found) {
+        throw new ConflictException('Level de acesso já cadastrado')
+      }
+
+      return await this.accessPoliciesService.createAccessLevelPolicies(
+        body as AccessLevelPoliciesInterface
+      )
+    } catch (_err) {
+      console.error('Erro ao cadastrar políticas de acesso')
     }
-
-    return await this.accessPoliciesService.createAccessLevelPolicies(
-      body as AccessLevelPoliciesInterface
-    )
   }
 
   @ApiBearerAuth()
@@ -77,22 +81,26 @@ export class AccessLevelPoliciessController {
     status: 200,
     description: 'Políticas encontradas para o nível'
   })
-  @Put(':level')
+  @Put('/:level')
   async updateAccessLevelPolicies(
     @Param('level') level: number,
     @Body(new ZodValidationPipe(updateLevelPoliciesSchema))
     body: CreateLevelPoliciesData
   ) {
-    const found = await this.accessPoliciesService.getByLevel(level)
+    try {
+      const found = await this.accessPoliciesService.getByLevel(level)
 
-    if (!found) {
-      throw new NotFoundException()
+      if (!found) {
+        throw new NotFoundException()
+      }
+
+      return await this.accessPoliciesService.updateAccessLevelPolicies(
+        level,
+        body as Partial<AccessLevelPoliciesInterface>
+      )
+    } catch (_err) {
+      console.error('Erro atualizando políticas de acesso')
     }
-
-    return await this.accessPoliciesService.updateAccessLevelPolicies(
-      level,
-      body as Partial<AccessLevelPoliciesInterface>
-    )
   }
 
   @ApiOperation({ summary: 'Busca policies por level de acesso' })
@@ -103,7 +111,11 @@ export class AccessLevelPoliciessController {
   })
   @Get('/:level')
   async getByLevel(@Param('level') level: number) {
-    return await this.accessPoliciesService.getByLevel(level)
+    try {
+      return await this.accessPoliciesService.getByLevel(level)
+    } catch (_err) {
+      console.error('Erro buscando políticas de acesso')
+    }
   }
 
   @ApiOperation({ summary: 'Deleta policies para o level de acesso' })
