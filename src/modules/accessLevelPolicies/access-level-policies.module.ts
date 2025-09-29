@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose'
 
 import { HuntCollectionModule } from '../hunt/hunt-collection.module'
 import { InvitationModule } from '../invitation/invitation.module'
-import { AccessLevelPoliciessController } from './controllers/access-level-policies.controller'
+import { AccessLevelPoliciesController } from './controllers/access-level-policies.controller'
 import { AccessLevelPoliciesRepository } from './repositories/access-level-policies.repository'
 import { AccessLevelPoliciesMongooseRepository } from './repositories/mongoose/access-level-policies.mongoose.repository'
 import {
@@ -29,7 +29,7 @@ import { UserLimitService } from './services/user-limit.service'
     AccessLevelPoliciesService,
     UserLimitService
   ],
-  controllers: [AccessLevelPoliciessController],
+  controllers: [AccessLevelPoliciesController],
   exports: [UserLimitService]
 })
 export class AccessLevelPoliciesModule {}

@@ -14,5 +14,5 @@ export abstract class AccessLevelPoliciesRepository {
     data: Partial<AccessLevelPoliciesInterface>
   ): Promise<AccessLevelPoliciesInterface>
 
-  abstract deleteAccessLevelPolicies(level: number): Promise<void>
+  abstract deleteAccessLevelPolicies(level: number): Promise<boolean>
 }

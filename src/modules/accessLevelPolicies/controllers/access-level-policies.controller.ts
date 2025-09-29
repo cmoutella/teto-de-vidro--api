@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -34,7 +35,7 @@ import { AccessLevelPoliciesService } from '../services/access-level-policies.se
 @UseInterceptors(LoggingInterceptor)
 // @UseGuards(AdminGuard)
 @Controller('access-policies')
-export class AccessLevelPoliciessController {
+export class AccessLevelPoliciesController {
   constructor(
     private readonly accessPoliciesService: AccessLevelPoliciesService
   ) {}
@@ -62,9 +63,12 @@ export class AccessLevelPoliciessController {
         throw new ConflictException('Level de acesso já cadastrado')
       }
 
-      return await this.accessPoliciesService.createAccessLevelPolicies(
-        body as AccessLevelPoliciesInterface
-      )
+      const created =
+        await this.accessPoliciesService.createAccessLevelPolicies(
+          body as AccessLevelPoliciesInterface
+        )
+
+      return created
     } catch (_err) {
       console.error('Erro ao cadastrar políticas de acesso')
     }
@@ -94,10 +98,13 @@ export class AccessLevelPoliciessController {
         throw new NotFoundException()
       }
 
-      return await this.accessPoliciesService.updateAccessLevelPolicies(
-        level,
-        body as Partial<AccessLevelPoliciesInterface>
-      )
+      const updated =
+        await this.accessPoliciesService.updateAccessLevelPolicies(
+          level,
+          body as Partial<AccessLevelPoliciesInterface>
+        )
+
+      return updated
     } catch (_err) {
       console.error('Erro atualizando políticas de acesso')
     }
@@ -112,15 +119,35 @@ export class AccessLevelPoliciessController {
   @Get('/:level')
   async getByLevel(@Param('level') level: number) {
     try {
-      return await this.accessPoliciesService.getByLevel(level)
-    } catch (_err) {
+      const found = await this.accessPoliciesService.getByLevel(level)
+
+      if (!found) {
+        throw new NotFoundException('Level não encontrado')
+      }
+
+      return found
+    } catch (err) {
       console.error('Erro buscando políticas de acesso')
+      if (err instanceof NotFoundException) {
+        throw err
+      }
+
+      throw new InternalServerErrorException('Erro interno do servidor')
     }
   }
 
   @ApiOperation({ summary: 'Deleta policies para o level de acesso' })
-  @Delete(':level')
+  @Delete('/:level')
   async deleteAccessLevelPolicies(@Param('level') level: number) {
-    await this.accessPoliciesService.deleteAccessLevelPolicies(level)
+    console.log('oxi')
+
+    try {
+      const deleted =
+        await this.accessPoliciesService.deleteAccessLevelPolicies(level)
+
+      return deleted
+    } catch (_err) {
+      console.error('Error deletando política de acesso')
+    }
   }
 }
