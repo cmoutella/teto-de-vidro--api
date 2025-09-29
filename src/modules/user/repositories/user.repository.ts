@@ -14,4 +14,7 @@ export abstract class UserRepository {
   abstract getByEmail(email: string): Promise<InterfaceUser>
   abstract getByCPF(cpf: string): Promise<InterfaceUser>
   abstract deleteUser(id: string): Promise<void>
+
+  abstract getApplications(): Promise<PublicInterfaceUser[]>
+  abstract getAppByName(name: string): Promise<PublicInterfaceUser>
 }
