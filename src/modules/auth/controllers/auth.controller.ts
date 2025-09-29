@@ -1,22 +1,22 @@
 import {
-  BadRequestException,
   Body,
   Controller,
+  InternalServerErrorException,
   Post,
+  UnauthorizedException,
   UseInterceptors,
   UsePipes
 } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
 import { UserService } from '@src/modules/user/services/user.service'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
-import { addDays } from 'date-fns'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 
 import { AuthCredentials } from '../schemas/models/auth.interface'
 import { loginSchema } from '../schemas/zod-validation/login.zod-validation'
+import { AuthService } from '../services/auth.service'
 
 @ApiTags('auth')
 @UseInterceptors(LoggingInterceptor)
@@ -24,7 +24,7 @@ import { loginSchema } from '../schemas/zod-validation/login.zod-validation'
 export class AuthController {
   constructor(
     private readonly userService: UserService,
-    private jwtService: JwtService
+    private readonly authService: AuthService
   ) {}
 
   @ApiOperation({ summary: 'Autentica um usuário' })
@@ -32,31 +32,30 @@ export class AuthController {
   @Post('/login')
   async authUser(@Body() credentials: AuthCredentials) {
     const { email, password } = credentials
+    try {
+      const foundUser = await this.userService.getByEmail(email)
 
-    const foundUser = await this.userService.getByEmail(email)
+      if (!foundUser) {
+        throw new UnauthorizedException('Usuário ou senha incorretos')
+      }
 
-    const passwordMatch = await compare(password, foundUser.password)
+      const passwordMatch = await compare(password, foundUser.password)
 
-    if (!passwordMatch) throw new Error('Usuário ou senha incorretos')
+      if (!passwordMatch) {
+        throw new UnauthorizedException('Usuário ou senha incorretos')
+      }
 
-    const { password: _password, createdAt: _cat, ...otherData } = foundUser
+      const auth = this.authService.authenticateUser(foundUser)
 
-    const payload = {
-      id: foundUser.id,
-      email: foundUser.email,
-      name: foundUser.name,
-      accessLevel: foundUser.accessLevel,
-      role: foundUser.role
-    }
+      return auth
+    } catch (error) {
+      console.error('Erro no login de usuários:', error)
 
-    const authDate = new Date()
-    const token = await this.jwtService.sign(payload)
-    const tokenExpiration = addDays(authDate, 15)
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
 
-    return {
-      token: token,
-      user: otherData,
-      expireAt: tokenExpiration.toISOString()
+      throw new InternalServerErrorException('Erro interno do servidor')
     }
   }
 
@@ -64,35 +63,33 @@ export class AuthController {
   @Post('/apps')
   async authApps(@Body() credentials: AuthCredentials) {
     const { email, password } = credentials
+    try {
+      const foundApp = await this.userService.getByEmail(email)
 
-    const foundUser = await this.userService.getByEmail(email)
+      if (foundApp.role !== 'app') {
+        throw new UnauthorizedException()
+      }
 
-    if (foundUser.role !== 'app') {
-      throw new BadRequestException()
-    }
+      const passwordMatch = await compare(password, foundApp.password)
 
-    const passwordMatch = await compare(password, foundUser.password)
+      if (!passwordMatch) {
+        throw new UnauthorizedException('Usuário ou senha incorretos')
+      }
 
-    if (!passwordMatch) throw new Error('Usuário ou senha incorretos')
+      const auth = this.authService.authenticateApplication(
+        foundApp,
+        credentials
+      )
 
-    const { password: _password, createdAt: _cat, ...otherData } = foundUser
+      return auth
+    } catch (error) {
+      console.error('Erro no login de aplicações:', error)
 
-    const payload = {
-      id: foundUser.id,
-      email: foundUser.email,
-      name: foundUser.name,
-      accessLevel: foundUser.accessLevel,
-      role: foundUser.role
-    }
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
 
-    const authDate = new Date()
-    const token = await this.jwtService.sign(payload)
-    const tokenExpiration = addDays(authDate, 15)
-
-    return {
-      token: token,
-      user: otherData,
-      expireAt: tokenExpiration.toISOString()
+      throw new InternalServerErrorException('Erro interno do servidor')
     }
   }
 }
