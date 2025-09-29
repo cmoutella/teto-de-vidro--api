@@ -89,7 +89,9 @@ export class UserMongooseRepository implements UserRepository {
       .lean<LeanDoc<InterfaceUser>>()
       .exec()
 
-    return app
+    const { _id, ...otherData } = app
+
+    return { ...otherData, id: _id.toString() }
   }
 
   async getById(id: string): Promise<InterfaceUser | null> {

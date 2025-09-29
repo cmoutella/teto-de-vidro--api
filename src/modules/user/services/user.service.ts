@@ -50,8 +50,10 @@ export class UserService {
       throw new ConflictException('CPF já cadastrado')
     }
 
+    const { password: _password, ...userData } = user
+
     const createUser = {
-      ...user,
+      ...userData,
       accessLevel: user.accessLevel ?? 0,
       status: user.role ?? 'regular',
       gender: user.gender ?? 'neutral'
