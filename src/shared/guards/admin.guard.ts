@@ -4,13 +4,16 @@ import {
   Injectable,
   UnauthorizedException
 } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { Request } from 'express'
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService
+  ) {}
 
   private extractTokenFromHeader(request: Request) {
     const [type, token] = request.headers.authorization?.split(' ') ?? []
@@ -28,18 +31,21 @@ export class AdminGuard implements CanActivate {
     }
 
     try {
-      const payload: AuthenticatedUser | null =
-        await this.jwtService.verifyAsync(token, {
-          secret: process.env.JWT_SECRET
-        })
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_SECRET')
+      })
 
-      if (payload && payload.role !== 'admin' && payload.role !== 'master') {
-        throw new UnauthorizedException('Apenas pessoas autorizadas')
+      if (!payload.id || !payload.role) {
+        throw new UnauthorizedException('Token inválido')
+      }
+
+      if (payload.role !== 'admin' && payload.role !== 'master') {
+        throw new UnauthorizedException()
       }
 
       if (payload) request['user'] = payload
     } catch (_err) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Acesso não autorizado')
     }
 
     return true

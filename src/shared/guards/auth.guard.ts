@@ -4,12 +4,16 @@ import {
   Injectable,
   UnauthorizedException
 } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService
+  ) {}
 
   private extractTokenFromHeader(request: Request) {
     const [type, token] = request.headers.authorization?.split(' ') ?? []
@@ -28,14 +32,18 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET
+        secret: this.configService.get<string>('JWT_SECRET') // ✅ Usar ConfigService
       })
 
-      request['user'] = payload
-    } catch (_err) {
-      throw new UnauthorizedException()
-    }
+      if (!payload.id || !payload.role) {
+        throw new UnauthorizedException('Token inválido')
+      }
 
-    return true
+      request['user'] = payload
+      return true
+    } catch (err) {
+      console.error('Erro na validação do token:', (err as Error).message)
+      throw new UnauthorizedException('Token inválido ou expirado')
+    }
   }
 }
