@@ -32,12 +32,12 @@ import { ApplicationUserService } from '../services/application-user.service'
 
 @ApiTags('applications')
 @UseInterceptors(LoggingInterceptor)
+@UseGuards(AdminGuard)
 @Controller('applications')
 export class ApplicationUsersController {
   constructor(private readonly userService: ApplicationUserService) {}
 
   @ApiBearerAuth()
-  @UseGuards(AdminGuard)
   @UsePipes(new ZodValidationPipe(createApplicationSchema))
   @ApiOperation({ summary: 'Cria uma nova aplicação' })
   @ApiResponse({

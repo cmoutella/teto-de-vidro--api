@@ -176,6 +176,8 @@ export class UsersController {
     status: 200,
     description: 'Usuários encontrados com sucesso'
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get()
   async getAllUsers() {
     return await this.userService.getAllUsers()
