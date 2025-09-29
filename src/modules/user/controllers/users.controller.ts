@@ -53,7 +53,7 @@ export class UsersController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
   @ApiOperation({ summary: 'Cria um novo usuário' })
