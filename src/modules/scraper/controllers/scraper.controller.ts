@@ -7,10 +7,10 @@ import {
   UseGuards,
   UseInterceptors
 } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from '@src/modules/auth/services/auth.service'
 import { ApplicationUserService } from '@src/modules/user/services/application-user.service'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 
 import { ScrapedAdData } from '../schemas/scraper.schema'
