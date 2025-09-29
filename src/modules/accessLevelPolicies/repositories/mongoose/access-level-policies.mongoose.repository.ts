@@ -61,7 +61,12 @@ export class AccessLevelPoliciesMongooseRepository
     return updated
   }
 
-  async deleteAccessLevelPolicies(level: number): Promise<void> {
-    await this.accessLevelPoliciesModel.deleteOne({ level: level }).exec()
+  async deleteAccessLevelPolicies(level: number): Promise<boolean> {
+    try {
+      await this.accessLevelPoliciesModel.deleteOne({ level: level }).exec()
+      return true
+    } catch {
+      return false
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 
 import { AccessLevelPoliciesRepository } from '../repositories/access-level-policies.repository'
 import { AccessLevelPoliciesInterface } from '../schema/model/access-policies.interface'
@@ -31,10 +31,6 @@ export class AccessLevelPoliciesService {
     const result =
       await this.accessLevelPoliciesRepository.getPoliciesByLevel(level)
 
-    if (!result) {
-      throw new NotFoundException('Level não encontrado')
-    }
-
     return result
   }
 
@@ -49,14 +45,13 @@ export class AccessLevelPoliciesService {
   }
 
   async deleteAccessLevelPolicies(level: number): Promise<boolean> {
-    if (!level) {
-      return false
-    }
-
     try {
-      await this.accessLevelPoliciesRepository.deleteAccessLevelPolicies(level)
+      const del =
+        await this.accessLevelPoliciesRepository.deleteAccessLevelPolicies(
+          level
+        )
 
-      return true
+      return del
     } catch {
       return false
     }
