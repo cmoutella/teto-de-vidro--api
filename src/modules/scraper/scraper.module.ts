@@ -1,8 +1,14 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 
+import { AuthModule } from '../auth/auth.module'
+import { UsersCollectionModule } from '../user/user.module'
 import { ScraperController } from './controllers/scraper.controller'
 
 @Module({
+  imports: [
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersCollectionModule)
+  ],
   controllers: [ScraperController]
 })
 export class ScraperModule {}
