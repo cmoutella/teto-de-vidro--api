@@ -68,6 +68,30 @@ export class UserMongooseRepository implements UserRepository {
     return users
   }
 
+  async getApplications(): Promise<PublicInterfaceUser[]> {
+    const apps = await this.userModel
+      .find({ role: 'app' })
+      .lean<LeanDoc<InterfaceUser>[]>()
+      .exec()
+      .then((res) =>
+        res.map((user) => {
+          const { password, _id, ...userData } = user
+          return { id: _id.toString(), ...userData }
+        })
+      )
+
+    return apps
+  }
+
+  async getAppByName(name: string): Promise<InterfaceUser> {
+    const app = await this.userModel
+      .findOne({ role: 'app', name: name })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    return app
+  }
+
   async getById(id: string): Promise<InterfaceUser | null> {
     const { _id, ...userData } = await this.userModel
       .findById({ _id: id })
