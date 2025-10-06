@@ -31,6 +31,7 @@ export interface InterfaceUser {
   // history
   createdAt: string
   updatedAt: string
+  onboardingCompleted: boolean
   lastLogin?: string
 }
 

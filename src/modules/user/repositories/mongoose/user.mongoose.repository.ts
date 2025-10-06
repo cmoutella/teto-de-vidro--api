@@ -17,6 +17,7 @@ export class UserMongooseRepository implements UserRepository {
     const createdAt = new Date().toISOString()
     const createUser = new this.userModel({
       ...newUser,
+      onboardingCompleted: false,
       createdAt: createdAt,
       updatedAt: createdAt
     })
@@ -38,6 +39,7 @@ export class UserMongooseRepository implements UserRepository {
     const createdAt = new Date().toISOString()
     const createUser = new this.userModel({
       ...newUser,
+      onboardingCompleted: false,
       createdAt: createdAt,
       updatedAt: createdAt
     })

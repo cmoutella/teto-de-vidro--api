@@ -54,8 +54,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @UsePipes(new EncryptPasswordPipe())
-  @UsePipes(new ZodValidationPipe(createUserSchema))
+  @UsePipes()
   @ApiOperation({ summary: 'Cria um novo usuário' })
   @ApiBody({
     type: User,
@@ -73,7 +72,7 @@ export class UsersController {
   })
   @Post()
   async createUser(
-    @Body()
+    @Body(new ZodValidationPipe(createUserSchema), new EncryptPasswordPipe())
     {
       email,
       name,
@@ -85,20 +84,24 @@ export class UsersController {
       profession,
       gender,
       birthDate
-    }: CreateUser
+    }: CreateUser,
+    @CurrentUser() user: AuthenticatedUser
   ) {
-    const createdUser = await this.userService.createUser({
-      email,
-      name,
-      familyName,
-      cpf,
-      accessLevel,
-      role,
-      password,
-      profession,
-      gender,
-      birthDate
-    })
+    const createdUser = await this.userService.createUser(
+      {
+        email,
+        name,
+        familyName,
+        cpf,
+        accessLevel,
+        role,
+        password,
+        profession,
+        gender,
+        birthDate
+      },
+      user.id
+    )
 
     return createdUser
   }
@@ -131,7 +134,7 @@ export class UsersController {
       user.role !== 'admin' &&
       user.role !== 'master' &&
       user.role !== 'tester' &&
-      user.role !== 'beta' &&
+      // user.role !== 'beta' &&
       user.accessLevel === 0
     ) {
       throw new UnauthorizedException('Sem autorização para convidar usuários')

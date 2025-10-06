@@ -10,6 +10,7 @@ import {
 import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
 import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
+import { mailService } from '@src/services/mail'
 
 import { UserRepository } from '../repositories/user.repository'
 import {
@@ -28,8 +29,12 @@ export class UserService {
     @Inject(forwardRef(() => UserLimitService))
     private readonly userLimitService: UserLimitService
   ) {}
+  email = mailService()
 
-  async createUser(user: CreateUser): Promise<PublicInterfaceUser> {
+  async createUser(
+    user: CreateUser,
+    operatorId?: string
+  ): Promise<PublicInterfaceUser> {
     if (!user.password || !user.email) {
       throw new BadRequestException('Username or password missing')
     }
@@ -57,9 +62,35 @@ export class UserService {
       accessLevel: user.accessLevel ?? 0,
       status: user.role ?? 'regular',
       gender: user.gender ?? 'neutral'
-    } as Omit<InterfaceUser, 'createdAt' | 'updatedAt' | 'lastLogin'>
+    } as Omit<
+      InterfaceUser,
+      'createdAt' | 'updatedAt' | 'lastLogin' | 'onboardingCompleted'
+    >
 
-    return await this.userRepository.createUser(createUser)
+    try {
+      const newUser = await this.userRepository.createUser(createUser)
+
+      if (!newUser) {
+        throw new Error('Erro ao criar usuário')
+      }
+
+      const invitation = await this.invitationService.addInvitation(
+        operatorId,
+        newUser.id
+      )
+
+      if (!invitation) {
+        throw new Error('Não foi possível enviar convite')
+      }
+
+      await this.email.welcome(newUser, invitation.invitationToken)
+
+      return newUser
+    } catch (err) {
+      if (err instanceof Error) {
+        throw err
+      }
+    }
   }
 
   async getUserPermissions(
@@ -107,11 +138,26 @@ export class UserService {
       role: 'guest'
     } as Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'role'>
 
-    const invited = await this.userRepository.inviteUser(createUser)
+    try {
+      const invited = await this.userRepository.inviteUser(createUser)
 
-    await this.invitationService.addInvitation(invitationHostId, invited.id)
+      const invitation = await this.invitationService.addInvitation(
+        invitationHostId,
+        invited.id
+      )
 
-    return invited
+      if (!invitation) {
+        throw new Error('Não foi possível enviar convite')
+      }
+
+      await this.email.welcome(invited, invitation.invitationToken)
+
+      return invited
+    } catch (err) {
+      if (err instanceof Error) {
+        throw err
+      }
+    }
   }
 
   async countInvitations(userId: string) {

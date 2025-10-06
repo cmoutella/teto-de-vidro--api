@@ -82,6 +82,9 @@ export class User implements InterfaceUser {
   updatedAt: string
   @ApiProperty()
   @Prop()
+  onboardingCompleted: boolean
+  @ApiProperty()
+  @Prop()
   lastLogin: string
 }
 
@@ -121,6 +124,9 @@ export class PublicUserSchema {
   @ApiProperty()
   @Prop({ enum: GenderAsEnum })
   gender: GenderAsEnum
+  @ApiProperty()
+  @Prop()
+  onboardingCompleted: boolean
   @ApiProperty()
   @Prop()
   birthDate: string
