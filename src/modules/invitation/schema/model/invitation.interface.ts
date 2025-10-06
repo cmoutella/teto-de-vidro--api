@@ -1,8 +1,10 @@
 export interface InvitationInterface {
+  id: string
   userId: string
   invitedUserId: string
-  status: 'invited' | 'accepted' | 'declined'
+  status: 'pending' | 'accepted' | 'declined'
 
+  expiresAt: string
   createdAt: string
   updatedAt: string
 }
