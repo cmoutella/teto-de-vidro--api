@@ -16,10 +16,14 @@ export function mailService() {
       from: 'Teto de Vidro <onboarding@resend.dev>',
       to: [user.email],
       subject: 'Boas vindas à Teto de Vidro!',
-      html: welcomeBetaEmailTemplate(
-        user.name,
-        `${process.env.TDV_URL}/primeiro-acesso/${firstAccessValidation}`
-      )
+      html: welcomeBetaEmailTemplate({
+        user: {
+          name: user.name,
+          gender: user.gender
+        },
+        ctaUrl: `${process.env.TDV_URL}/boas-vindas/${firstAccessValidation}`,
+        productUrl: process.env.TDV_URL
+      })
     })
 
     if (error) {
