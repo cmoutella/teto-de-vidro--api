@@ -7,6 +7,8 @@ export type UserRole =
   | 'master'
   | 'app'
 
+export type Gender = 'male' | 'female' | 'neutral'
+
 export interface InterfaceUser {
   id?: string
 
@@ -22,7 +24,7 @@ export interface InterfaceUser {
 
   // user profiling
   profession?: string
-  gender?: 'male' | 'female' | 'neutral'
+  gender?: Gender
   birthDate?: string
 
   // user settings
