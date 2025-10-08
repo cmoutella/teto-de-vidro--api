@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { validateExpiration } from '@src/shared/utils/date/validate-expiration'
 
 import { InvitationRepository } from '../repositories/invitation.repository'
 
@@ -38,6 +39,40 @@ export class InvitationService {
       return { invitationToken }
     } catch {
       console.error('Não foi possível cadastrar convite')
+    }
+  }
+
+  async validateInvitation(invitationToken: string) {
+    try {
+      const invitation: InviteTokenPayload = await this.jwtService.verifyAsync(
+        invitationToken,
+        {
+          secret: process.env.JWT_INVITATION_SECRET
+        }
+      )
+
+      if (!invitation || !invitation.invitationId) {
+        throw new Error('Token de convite inválido')
+      }
+
+      const invite = await this.invitationRepository.getInvitationById(
+        invitation.invitationId
+      )
+
+      if (!invite) {
+        throw new Error('Convite não encontrado')
+      }
+
+      const isValid = validateExpiration(invite.expiresAt)
+
+      if (!isValid) {
+        throw new Error('Convite expirado')
+      }
+
+      return invite
+    } catch (err) {
+      console.error('Erro ao validar convite', (err as Error).message)
+      return
     }
   }
 

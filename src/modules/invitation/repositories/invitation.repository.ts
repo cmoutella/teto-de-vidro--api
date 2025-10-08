@@ -6,6 +6,8 @@ export abstract class InvitationRepository {
     invitedUserId?: string
   ): Promise<InvitationInterface>
 
+  abstract getInvitationById(id: string): Promise<InvitationInterface>
+
   abstract listUserAcceptedInvitations(
     userId: string
   ): Promise<InvitationInterface[]>

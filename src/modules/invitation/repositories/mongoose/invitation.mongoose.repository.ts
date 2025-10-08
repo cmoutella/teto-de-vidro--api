@@ -39,6 +39,18 @@ export class InvitationMongooseRepository implements InvitationRepository {
     return { id: _id, ...data } as InvitationInterface
   }
 
+  async getInvitationById(id: string): Promise<InvitationInterface> {
+    const foundInvite = await this.invitationModel.findById(id).exec()
+
+    if (!foundInvite) {
+      return
+    }
+
+    const { _id, ...data } = foundInvite.toObject()
+
+    return { ...data, id: _id.toString() }
+  }
+
   async listUserAcceptedInvitations(
     userId: string
   ): Promise<InvitationInterface[]> {
