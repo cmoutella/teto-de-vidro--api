@@ -64,7 +64,7 @@ export class UserService {
       gender: user.gender ?? 'neutral'
     } as Omit<
       InterfaceUser,
-      'createdAt' | 'updatedAt' | 'lastLogin' | 'onboardingCompleted'
+      'createdAt' | 'updatedAt' | 'lastLogin' | 'welcomeCompleted'
     >
 
     try {
@@ -158,6 +158,19 @@ export class UserService {
         throw err
       }
     }
+  }
+
+  async validateInvitation(invitationToken: string) {
+    const invite =
+      await this.invitationService.validateInvitation(invitationToken)
+
+    if (!invite) {
+      return
+    }
+
+    const invitedUser = await this.getById(invite.invitedUserId)
+
+    return { invite, invitedUser }
   }
 
   async countInvitations(userId: string) {

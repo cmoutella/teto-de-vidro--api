@@ -24,7 +24,7 @@ export const mockedUser: InterfaceUser = {
 
   // history
   createdAt: someDate,
-  onboardingCompleted: false,
+  welcomeCompleted: false,
   updatedAt: someDate,
   lastLogin: someDate
 }

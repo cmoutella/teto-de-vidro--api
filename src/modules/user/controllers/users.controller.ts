@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   UnauthorizedException,
@@ -143,6 +144,26 @@ export class UsersController {
     return await this.userService.inviteUser(invitedUser, user.id)
   }
 
+  @Get('validate-invite/:invitation')
+  async validateUserInvitation(@Param('invitation') invitation: string) {
+    const invitationData = await this.userService.validateInvitation(invitation)
+
+    if (!invitationData) {
+      throw new NotFoundException()
+    }
+
+    const data = {
+      invitationId: invitationData.invite.id,
+      welcomeCompleted: invitationData.invitedUser.welcomeCompleted,
+      user: {
+        name: invitationData.invitedUser.name,
+        id: invitationData.invitedUser.id
+      }
+    }
+
+    return data
+  }
+
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UsePipes()
@@ -151,8 +172,8 @@ export class UsersController {
       'Busca quantos usuários foram convidados por um determinado usuário'
   })
   @Get(':id/invites')
-  async countInvitesSent(@CurrentUser() user: AuthenticatedUser) {
-    const invites = await this.userService.countInvitations(user.id)
+  async countInvitesSent(@Param('id') id: string) {
+    const invites = await this.userService.countInvitations(id)
 
     return { invitesSent: invites }
   }
@@ -173,6 +194,8 @@ export class UsersController {
 
   // TODO: update password
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Busca por todos os usuários' })
   @ApiResponse({
     type: GetAllUsersSuccess,
