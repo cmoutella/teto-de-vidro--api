@@ -20,21 +20,21 @@ import { UsersCollectionModule } from './modules/users/user.module'
       isGlobal: true
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
-    UsersCollectionModule,
-    AccessLevelPoliciesModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15d' }
     }),
-    AuthModule,
-    HuntCollectionModule,
-    TargetPropertyCollectionModule,
-    AddressModule,
-    AmenitiesCollectionModule,
-    CommentsCollectionModule,
+    UsersCollectionModule,
     InvitationModule,
-    ScraperModule
+    AuthModule,
+    AccessLevelPoliciesModule,
+    TargetPropertyCollectionModule,
+    HuntCollectionModule,
+    AddressModule,
+    ScraperModule,
+    AmenitiesCollectionModule,
+    CommentsCollectionModule
   ]
 })
 export class AppModule {}
