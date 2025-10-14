@@ -21,18 +21,18 @@ import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
-import { CreateApplicationSuccess } from '../schemas/endpoints/createApplication'
-import { DeleteUserSuccess } from '../schemas/endpoints/deleteUser'
-import { GetAllUsersSuccess } from '../schemas/endpoints/getUsers'
+import { CreateApplicationSuccess } from '../../schemas/endpoints/admin/create-application.admin.schema'
+import { DeleteUserSuccess } from '../../schemas/endpoints/admin/delete-user.admin.schema'
 import {
   CreateApplication,
   createApplicationSchema
-} from '../schemas/zod-validation/create-application-user.zod-validation'
-import { ApplicationUserService } from '../services/application-user.service'
+} from '../../schemas/endpoints/admin/zod-validation/create-application-user.admin.zod-validation'
+import { GetAllUsersSuccess } from '../../schemas/endpoints/public/get-users.public.schema'
+import { ApplicationUserService } from '../../services/application-user.service'
 
-@ApiTags('applications')
+@ApiTags('admin/applications')
 @UseInterceptors(LoggingInterceptor)
-@Controller('applications')
+@Controller('admin/applications')
 export class ApplicationUsersController {
   constructor(private readonly userService: ApplicationUserService) {}
 

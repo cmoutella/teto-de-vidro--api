@@ -13,7 +13,7 @@ import {
   InterfaceUser,
   PublicInterfaceUser
 } from '../schemas/models/user.interface'
-import { CreateUser } from '../schemas/zod-validation/create-user.zod-validation'
+import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 
 @Injectable()
 export class ApplicationUserService {

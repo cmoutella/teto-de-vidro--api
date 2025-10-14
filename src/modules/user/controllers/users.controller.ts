@@ -27,31 +27,29 @@ import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
 import { EncryptPasswordPipe } from '../pipe/password.pipe'
+import { DeleteUserSuccess } from '../schemas/endpoints/admin/delete-user.admin.schema'
 import {
   CreateUserFailureException,
   CreateUserSuccess
-} from '../schemas/endpoints/createUser'
-import { DeleteUserSuccess } from '../schemas/endpoints/deleteUser'
+} from '../schemas/endpoints/public/create-user.public.schema'
 import {
   GetAllUsersSuccess,
   GetOneUserSuccess
-} from '../schemas/endpoints/getUsers'
-import { InviteUserSchema } from '../schemas/endpoints/inviteUser'
+} from '../schemas/endpoints/public/get-users.public.schema'
+import { InviteUserSchema } from '../schemas/endpoints/public/invite-user.public.schema'
 import {
   InitialUpdateUserData,
   UpdateUserData,
   UpdateUserPassword
-} from '../schemas/endpoints/updateUser'
-import { InterfaceUser } from '../schemas/models/user.interface'
-import { User } from '../schemas/user.schema'
+} from '../schemas/endpoints/public/update-user.public.schema'
 import {
   CreateUser,
   createUserSchema
-} from '../schemas/zod-validation/create-user.zod-validation'
+} from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import {
   InviteUser,
   inviteUserSchema
-} from '../schemas/zod-validation/invite-user.zod-validation'
+} from '../schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
 import {
   ChangePassword,
   changePasswordSchema,
@@ -59,7 +57,9 @@ import {
   initialUpdateUserSchema,
   UpdateUser,
   updateUserSchema
-} from '../schemas/zod-validation/update-user.zod-validation'
+} from '../schemas/endpoints/public/zod-validation/update-user.public.zod-validation'
+import { InterfaceUser } from '../schemas/models/user.interface'
+import { User } from '../schemas/user.schema'
 import { UserService } from '../services/user.service'
 
 @ApiTags('user')

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { GENDERS, USER_STATUS } from './shared'
+import { GENDERS, USER_STATUS } from '../../../consts/shared'
 
 export const createUserSchema = z.object({
   name: z.string(),

@@ -1,7 +1,7 @@
 import { Prop, Schema } from '@nestjs/mongoose'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { PublicUserSchema } from '../user.schema'
+import { PublicUserSchema } from '../../user.schema'
 
 @Schema()
 export class CreateUserSuccess {

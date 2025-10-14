@@ -1,8 +1,8 @@
+import type { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import type {
   InterfaceUser,
   PublicInterfaceUser
 } from '../schemas/models/user.interface'
-import type { CreateUser } from '../schemas/zod-validation/create-user.zod-validation'
 
 export abstract class UserRepository {
   abstract createUser(newUser: CreateUser): Promise<PublicInterfaceUser>

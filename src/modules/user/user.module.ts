@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose'
 
 import { AccessLevelPoliciesModule } from '../accessLevelPolicies/access-level-policies.module'
 import { InvitationModule } from '../invitation/invitation.module'
-import { ApplicationUsersController } from './controllers/application-users.controller'
+import { ApplicationUsersController } from './controllers/admin/application-users.admin.controller'
 import { UsersController } from './controllers/users.controller'
 import { UserMongooseRepository } from './repositories/mongoose/user.mongoose.repository'
 import { UserRepository } from './repositories/user.repository'
