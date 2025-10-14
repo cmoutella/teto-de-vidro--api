@@ -59,6 +59,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @UsePipes()
+  @ApiOperation({ summary: 'Atualiza dados do usuário' })
   @ApiBody({
     type: UpdateUserData,
     description: 'Data needed to create new user'
@@ -84,6 +85,9 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @UsePipes()
+  @ApiOperation({
+    summary: 'Update dos dados do usuario no fluxo de boas vindas'
+  })
   @ApiBody({
     type: InitialUpdateUserData,
     description: 'Data needed to create new user'
@@ -112,6 +116,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @UsePipes()
+  @ApiOperation({ summary: 'Atualização de senha do usuário' })
   @ApiBody({
     type: UpdateUserPassword,
     description: 'Data needed to create new user'
@@ -143,6 +148,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UsePipes()
+  @ApiOperation({ summary: 'Retorna as permissões do usuário' })
   @Get(':id/permissions')
   async getUserPermissions(@CurrentUser() user: AuthenticatedUser) {
     const permissions = await this.userService.getUserPermissions(user.id)
@@ -217,6 +223,7 @@ export class UsersController {
     return await this.userService.inviteUser(invitedUser, user.id)
   }
 
+  @ApiOperation({ summary: 'Valida um convite' })
   @Get('/validate-invite/:invitation')
   async validateUserInvitation(@Param('invitation') invitation: string) {
     const invitationData = await this.userService.validateInvitation(invitation)

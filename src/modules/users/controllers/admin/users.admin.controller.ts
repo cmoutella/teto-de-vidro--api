@@ -103,6 +103,7 @@ export class UsersAdminController {
   }
 
   @UsePipes()
+  @ApiOperation({ summary: 'Atualiza dados de um usuário' })
   @ApiBody({
     type: UpdateUserData,
     description: 'Data needed to create new user'
