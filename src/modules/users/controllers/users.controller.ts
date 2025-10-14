@@ -2,7 +2,6 @@ import {
   BadGatewayException,
   Body,
   Controller,
-  Delete,
   Get,
   NotFoundException,
   Param,
@@ -27,25 +26,17 @@ import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
 import { EncryptPasswordPipe } from '../pipe/password.pipe'
-import { DeleteUserSuccess } from '../schemas/endpoints/admin/delete-user.admin.schema'
 import {
   CreateUserFailureException,
   CreateUserSuccess
 } from '../schemas/endpoints/public/create-user.public.schema'
-import {
-  GetAllUsersSuccess,
-  GetOneUserSuccess
-} from '../schemas/endpoints/public/get-users.public.schema'
+import { GetOneUserSuccess } from '../schemas/endpoints/public/get-users.public.schema'
 import { InviteUserSchema } from '../schemas/endpoints/public/invite-user.public.schema'
 import {
   InitialUpdateUserData,
   UpdateUserData,
   UpdateUserPassword
 } from '../schemas/endpoints/public/update-user.public.schema'
-import {
-  CreateUser,
-  createUserSchema
-} from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import {
   InviteUser,
   inviteUserSchema
@@ -58,8 +49,6 @@ import {
   UpdateUser,
   updateUserSchema
 } from '../schemas/endpoints/public/zod-validation/update-user.public.zod-validation'
-import { InterfaceUser } from '../schemas/models/user.interface'
-import { User } from '../schemas/user.schema'
 import { UserPublicService } from '../services/user.public.service'
 
 @ApiTags('user')
@@ -67,60 +56,6 @@ import { UserPublicService } from '../services/user.public.service'
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserPublicService) {}
-
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @UsePipes()
-  @ApiOperation({ summary: 'Cria um novo usuário' })
-  @ApiBody({
-    type: User,
-    description: 'Data needed to create new user'
-  })
-  @ApiResponse({
-    type: CreateUserSuccess,
-    status: 201,
-    description: 'Usuário criado com sucesso'
-  })
-  @ApiResponse({
-    type: CreateUserFailureException,
-    status: 409,
-    description: 'Email ou CPF já cadastrado'
-  })
-  @Post('/')
-  async createUser(
-    @Body(new ZodValidationPipe(createUserSchema), new EncryptPasswordPipe())
-    {
-      email,
-      name,
-      familyName,
-      cpf,
-      accessLevel,
-      role,
-      password,
-      profession,
-      gender,
-      birthDate
-    }: CreateUser,
-    @CurrentUser() user: AuthenticatedUser
-  ) {
-    const createdUser = await this.userService.createUser(
-      {
-        email,
-        name,
-        familyName,
-        cpf,
-        accessLevel,
-        role,
-        password,
-        profession,
-        gender,
-        birthDate
-      },
-      user.id
-    )
-
-    return createdUser
-  }
 
   @UseGuards(AuthGuard)
   @UsePipes()
@@ -184,7 +119,10 @@ export class UsersController {
   @Put('/:id/new-password')
   async updateUserPassword(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(changePasswordSchema))
+    @Body(
+      new ZodValidationPipe(changePasswordSchema),
+      new EncryptPasswordPipe()
+    )
     { password }: ChangePassword
   ) {
     try {
@@ -214,19 +152,6 @@ export class UsersController {
 
   // TODO: update email
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Busca por todos os usuários' })
-  @ApiResponse({
-    type: GetAllUsersSuccess,
-    status: 200,
-    description: 'Usuários encontrados com sucesso'
-  })
-  @Get()
-  async getAllUsers() {
-    return await this.userService.getAllUsers()
-  }
-
   @ApiOperation({ summary: 'Busca usuários por id' })
   @ApiResponse({
     type: GetOneUserSuccess,
@@ -237,25 +162,21 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('/:id')
   async getById(@Param('id') id: string) {
-    const { password, ...data } = await this.userService.getById(id)
+    try {
+      const foundUser = await this.userService.getById(id)
 
-    const user: Omit<InterfaceUser, 'password'> = {
-      ...data
+      if (!foundUser) {
+        throw new NotFoundException('Usuário não encontrado')
+      }
+
+      return foundUser
+    } catch (err) {
+      console.log('Problem @ User Controller | get by id')
+
+      if (err instanceof Error) {
+        throw err
+      }
     }
-    return user
-  }
-
-  @ApiOperation({ summary: 'Deleta um usuário por id' })
-  @ApiResponse({
-    type: DeleteUserSuccess,
-    status: 200,
-    description: 'Usuário deletado com sucesso'
-  })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    await this.userService.deleteUser(id)
   }
 
   // INVITATIONS

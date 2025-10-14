@@ -4,11 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { AccessLevelPoliciesModule } from '../accessLevelPolicies/access-level-policies.module'
 import { InvitationModule } from '../invitation/invitation.module'
 import { ApplicationUsersController } from './controllers/admin/application-users.admin.controller'
+import { UsersAdminController } from './controllers/admin/users.admin.controller'
 import { UsersController } from './controllers/users.controller'
 import { UserMongooseRepository } from './repositories/mongoose/user.mongoose.repository'
 import { UserRepository } from './repositories/user.repository'
 import { User, UserSchema } from './schemas/user.schema'
 import { ApplicationUserService } from './services/application-user.service'
+import { UserAdminService } from './services/user.admin.service'
 import { UserPublicService } from './services/user.public.service'
 
 @Module({
@@ -23,9 +25,19 @@ import { UserPublicService } from './services/user.public.service'
       useClass: UserMongooseRepository
     },
     UserPublicService,
+    UserAdminService,
     ApplicationUserService
   ],
-  controllers: [UsersController, ApplicationUsersController],
-  exports: [UserPublicService, UserRepository, ApplicationUserService]
+  controllers: [
+    UsersAdminController,
+    ApplicationUsersController,
+    UsersController
+  ],
+  exports: [
+    UserPublicService,
+    UserAdminService,
+    UserRepository,
+    ApplicationUserService
+  ]
 })
 export class UsersCollectionModule {}

@@ -39,3 +39,8 @@ export interface InterfaceUser {
 
 // returned on public routes
 export type PublicInterfaceUser = Omit<InterfaceUser, 'password'>
+
+export type SafeInterfaceUser = Omit<
+  InterfaceUser,
+  'password' | 'cpf' | 'lastLogin' | 'createdAt' | 'updatedAt'
+>

@@ -139,7 +139,7 @@ export class UserAdminService {
   }
 
   async getByEmail(email: string): Promise<
-    PublicInterfaceUser & {
+    InterfaceUser & {
       permissions: Omit<
         AccessLevelPoliciesInterface,
         'level' | 'createdAt' | 'updatedAt'
@@ -150,7 +150,7 @@ export class UserAdminService {
 
     if (!user) return
 
-    const { password: _password, ...userData } = user
+    const { ...userData } = user
 
     const permissions = await this.getUserPermissions(user.id)
 

@@ -199,6 +199,6 @@ export class UsersAdminController {
   })
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    await this.userPublicService.deleteUser(id)
+    await this.userAdminService.deleteUser(id)
   }
 }

@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
   Inject,
   forwardRef,
   UnauthorizedException
@@ -13,11 +12,10 @@ import { InvitationService } from '@src/modules/invitation/service/invitation.se
 import { mailService } from '@src/services/mail'
 
 import { UserRepository } from '../repositories/user.repository'
-import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import { InviteUser } from '../schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
 import {
   InterfaceUser,
-  PublicInterfaceUser
+  SafeInterfaceUser
 } from '../schemas/models/user.interface'
 
 @Injectable()
@@ -30,70 +28,6 @@ export class UserPublicService {
     private readonly userLimitService: UserLimitService
   ) {}
   email = mailService()
-
-  async createUser(
-    user: CreateUser,
-    operatorId?: string
-  ): Promise<PublicInterfaceUser> {
-    if (!user.password || !user.email) {
-      throw new BadRequestException('Username or password missing')
-    }
-
-    if (!user.name || !user.familyName || !user.cpf) {
-      throw new BadRequestException('Identification missing')
-    }
-
-    const existingUserEmail = await this.userRepository.getByEmail(user.email)
-
-    if (existingUserEmail) {
-      throw new ConflictException('Email já cadastrado')
-    }
-
-    const existingUserCPF = await this.userRepository.getByCPF(user.cpf)
-
-    if (existingUserCPF) {
-      throw new ConflictException('CPF já cadastrado')
-    }
-
-    const { password: _password, ...userData } = user
-
-    const createUser = {
-      ...userData,
-      accessLevel: user.accessLevel ?? 0,
-      status: user.role ?? 'regular',
-      gender: user.gender ?? 'neutral'
-    } as Omit<
-      InterfaceUser,
-      'createdAt' | 'updatedAt' | 'lastLogin' | 'welcomeCompleted'
-    >
-
-    try {
-      const newUser = await this.userRepository.createUser(createUser)
-
-      if (!newUser) {
-        throw new Error('Erro ao criar usuário')
-      }
-
-      if (operatorId) {
-        const invitation = await this.invitationService.addInvitation(
-          operatorId,
-          newUser.id
-        )
-
-        if (!invitation) {
-          throw new Error('Não foi possível enviar convite')
-        }
-
-        await this.email.welcome(newUser, invitation.invitationToken)
-      }
-
-      return newUser
-    } catch (err) {
-      if (err instanceof Error) {
-        throw err
-      }
-    }
-  }
 
   async initialUserDataUpdate(
     userId: string,
@@ -161,25 +95,6 @@ export class UserPublicService {
       }
     }
   }
-  async updateUserAccess(userId, newData: Partial<InterfaceUser>) {
-    try {
-      const { role, accessLevel, ..._rest } = newData
-      const updatedUser = await this.userRepository.updateUser(userId, {
-        role,
-        accessLevel
-      })
-
-      if (!updatedUser) {
-        throw new Error('Error updating user password')
-      }
-
-      return updatedUser
-    } catch (err) {
-      if (err instanceof Error) {
-        throw err
-      }
-    }
-  }
 
   async getUserPermissions(
     userId: string
@@ -199,12 +114,8 @@ export class UserPublicService {
     return currentLimits
   }
 
-  async getAllUsers(): Promise<PublicInterfaceUser[]> {
-    return await this.userRepository.getAllUsers()
-  }
-
   async getByEmail(email: string): Promise<
-    InterfaceUser & {
+    SafeInterfaceUser & {
       permissions: Omit<
         AccessLevelPoliciesInterface,
         'level' | 'createdAt' | 'updatedAt'
@@ -215,13 +126,22 @@ export class UserPublicService {
 
     if (!user) return
 
+    const {
+      password: _password,
+      cpf: _cpf,
+      createdAt: _createdAt,
+      updatedAt: _updatedAt,
+      lastLogin: _lastLogin,
+      ...userData
+    } = user
+
     const permissions = await this.getUserPermissions(user.id)
 
-    return { ...user, permissions }
+    return { ...userData, permissions }
   }
 
   async getById(id: string): Promise<
-    InterfaceUser & {
+    SafeInterfaceUser & {
       permissions: Omit<
         AccessLevelPoliciesInterface,
         'level' | 'createdAt' | 'updatedAt'
@@ -232,22 +152,25 @@ export class UserPublicService {
 
     if (!user) throw new NotFoundException()
 
+    const {
+      password: _password,
+      cpf: _cpf,
+      createdAt: _createdAt,
+      updatedAt: _updatedAt,
+      lastLogin: _lastLogin,
+      ...userData
+    } = user
+
     const permissions = await this.getUserPermissions(user.id)
 
-    return { ...user, permissions }
-  }
-
-  async deleteUser(id: string): Promise<void> {
-    const user = await this.userRepository.getById(id)
-    if (!user) throw new NotFoundException()
-    await this.userRepository.deleteUser(id)
+    return { ...userData, permissions }
   }
 
   // INVITES
   async inviteUser(
     user: InviteUser,
     invitationHostId: string
-  ): Promise<PublicInterfaceUser> {
+  ): Promise<SafeInterfaceUser> {
     const host = await this.getById(invitationHostId)
 
     if (!host) {
