@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
 import { TargetPropertyCollectionModule } from '../targetProperty/target-property.module'
-import { UsersCollectionModule } from '../user/user.module'
+import { UsersCollectionModule } from '../users/user.module'
 import { HuntController } from './controllers/hunt-collection.controller'
 import { HuntRepository } from './repositories/hunt.repository'
 import { HuntMongooseRepository } from './repositories/mongoose/hunt.mongoose.repository'

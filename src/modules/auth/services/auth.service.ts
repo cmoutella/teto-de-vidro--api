@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { InterfaceUser } from '@src/modules/user/schemas/models/user.interface'
+import { InterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 import { compare } from 'bcryptjs'
 import { addDays } from 'date-fns'
 

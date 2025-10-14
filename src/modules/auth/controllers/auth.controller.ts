@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
-import { UserService } from '@src/modules/user/services/user.service'
+import { UserService } from '@src/modules/users/services/user.service'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'

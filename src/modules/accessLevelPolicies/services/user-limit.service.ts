@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
-import { InterfaceUser } from '@src/modules/user/schemas/models/user.interface'
+import { InterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 
 import { AccessLevelPoliciesService } from './access-level-policies.service'
 

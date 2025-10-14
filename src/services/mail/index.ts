@@ -1,4 +1,4 @@
-import type { PublicInterfaceUser } from '@src/modules/user/schemas/models/user.interface'
+import type { PublicInterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 import { Resend } from 'resend'
 
 import { welcomeBetaEmailTemplate } from './templates/welcome_beta.email'

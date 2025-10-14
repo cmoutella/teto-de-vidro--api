@@ -25,7 +25,7 @@ import {
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
-import { UserService } from '@src/modules/user/services/user.service'
+import { UserService } from '@src/modules/users/services/user.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'

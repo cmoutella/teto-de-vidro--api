@@ -10,9 +10,9 @@ import {
   TargetPropertySchema
 } from '@src/modules/targetProperty/schemas/target-property.schema'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
-import { mockUserService } from '@src/modules/user/__tests__/__mocks__'
-import { mockedUser } from '@src/modules/user/__tests__/__mocks__/data'
-import { UserService } from '@src/modules/user/services/user.service'
+import { mockUserService } from '@src/modules/users/__tests__/__mocks__'
+import { mockedUser } from '@src/modules/users/__tests__/__mocks__/data'
+import { UserService } from '@src/modules/users/services/user.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'

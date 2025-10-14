@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { PassportModule } from '@nestjs/passport'
 
-import { UsersCollectionModule } from '../user/user.module'
+import { UsersCollectionModule } from '../users/user.module'
 import { AuthController } from './controllers/auth.controller'
 import { AuthService } from './services/auth.service'
 

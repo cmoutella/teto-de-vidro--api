@@ -12,7 +12,7 @@ import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { InvitationModule } from './modules/invitation/invitation.module'
 import { ScraperModule } from './modules/scraper/scraper.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
-import { UsersCollectionModule } from './modules/user/user.module'
+import { UsersCollectionModule } from './modules/users/user.module'
 
 @Module({
   imports: [

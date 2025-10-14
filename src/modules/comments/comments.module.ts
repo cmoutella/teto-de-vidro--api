@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
 import { AddressModule } from '../address/address.module'
-import { UsersCollectionModule } from '../user/user.module'
+import { UsersCollectionModule } from '../users/user.module'
 import { CommentsController } from './controllers/comments.controller'
 import { CommentRepository } from './repositories/comment.repository'
 import { CommentMongooseRepository } from './repositories/mongoose/comment.mongoose.repository'

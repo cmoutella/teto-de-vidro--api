@@ -1,4 +1,4 @@
-import type { Gender } from '@src/modules/user/schemas/models/user.interface'
+import type { Gender } from '@src/modules/users/schemas/models/user.interface'
 
 interface TemplateProps {
   user: {
