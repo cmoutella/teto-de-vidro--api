@@ -12,6 +12,6 @@ export const adminUpdateUserSchema = z.object({
 
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),
-  birthDate: z.string()
+  birthDate: z.string().optional()
 })
 export type AdminUpdateUser = z.infer<typeof adminUpdateUserSchema>

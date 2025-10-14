@@ -13,15 +13,15 @@ import { InvitationService } from '@src/modules/invitation/service/invitation.se
 import { mailService } from '@src/services/mail'
 
 import { UserRepository } from '../repositories/user.repository'
+import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
+import { InviteUser } from '../schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
 import {
   InterfaceUser,
   PublicInterfaceUser
 } from '../schemas/models/user.interface'
-import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
-import { InviteUser } from '../schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
 
 @Injectable()
-export class UserService {
+export class UserPublicService {
   constructor(
     private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => InvitationService))
@@ -74,16 +74,18 @@ export class UserService {
         throw new Error('Erro ao criar usuário')
       }
 
-      const invitation = await this.invitationService.addInvitation(
-        operatorId,
-        newUser.id
-      )
+      if (operatorId) {
+        const invitation = await this.invitationService.addInvitation(
+          operatorId,
+          newUser.id
+        )
 
-      if (!invitation) {
-        throw new Error('Não foi possível enviar convite')
+        if (!invitation) {
+          throw new Error('Não foi possível enviar convite')
+        }
+
+        await this.email.welcome(newUser, invitation.invitationToken)
       }
-
-      await this.email.welcome(newUser, invitation.invitationToken)
 
       return newUser
     } catch (err) {

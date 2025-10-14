@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -42,8 +43,8 @@ import {
   GetOneUserSuccess
 } from '../../schemas/endpoints/public/get-users.public.schema'
 import { UpdateUserData } from '../../schemas/endpoints/public/update-user.public.schema'
-import { InterfaceUser } from '../../schemas/models/user.interface'
-import { UserService } from '../../services/user.service'
+import { UserAdminService } from '../../services/user.admin.service'
+import { UserPublicService } from '../../services/user.public.service'
 
 @ApiTags('admin/users')
 @ApiBearerAuth()
@@ -51,7 +52,10 @@ import { UserService } from '../../services/user.service'
 @Controller('admin/users')
 @UseGuards(AdminGuard)
 export class UsersAdminController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userPublicService: UserPublicService,
+    private readonly userAdminService: UserAdminService
+  ) {}
 
   @UsePipes()
   @ApiOperation({ summary: 'Cria um novo usuário' })
@@ -78,9 +82,9 @@ export class UsersAdminController {
       gender,
       birthDate
     }: AdminCreateUser,
-    @CurrentUser() user: AuthenticatedUser
+    @CurrentUser() adminUser: AuthenticatedUser
   ) {
-    const createdUser = await this.userService.createUser(
+    const createdUser = await this.userAdminService.createUser(
       {
         email,
         name,
@@ -92,7 +96,7 @@ export class UsersAdminController {
         gender,
         birthDate
       },
-      user.id
+      adminUser.id
     )
 
     return createdUser
@@ -110,15 +114,25 @@ export class UsersAdminController {
     newData: AdminUpdateUser
   ) {
     try {
-      const data = await this.userService.updateUser(id, newData)
+      const existingUser = await this.userAdminService.getById(id)
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found')
+      }
+
+      const data = await this.userAdminService.updateUser(id, newData)
 
       if (!data) {
         throw new BadGatewayException()
       }
 
       return data
-    } catch (_err) {
-      console.error('ERROR @ User Controler | data update')
+    } catch (err) {
+      console.error('ERROR @ User Admin Controler | data update')
+
+      if (err instanceof NotFoundException) {
+        throw err
+      }
     }
   }
 
@@ -140,23 +154,41 @@ export class UsersAdminController {
   })
   @Get()
   async getAllUsers() {
-    return await this.userService.getAllUsers()
+    return await this.userAdminService.getAllUsers()
   }
 
-  @ApiOperation({ summary: 'Busca um usuário por id' })
+  @ApiOperation({ summary: 'Busca um usuário por email' })
   @ApiResponse({
     type: GetOneUserSuccess,
     status: 200,
     description: 'Usuário encontrado com sucesso'
   })
-  @Get('/:id')
-  async getById(@Param('id') id: string) {
-    const { password, ...data } = await this.userService.getById(id)
+  @Get('/:email')
+  async getByEmail(@Param('email') email: string) {
+    const foundUser = await this.userAdminService.getByEmail(email)
 
-    const user: Omit<InterfaceUser, 'password'> = {
-      ...data
+    if (!foundUser) {
+      throw new NotFoundException('Usuário não encontrado')
     }
-    return user
+
+    return foundUser
+  }
+
+  @ApiOperation({ summary: 'Busca um usuário por cpf' })
+  @ApiResponse({
+    type: GetOneUserSuccess,
+    status: 200,
+    description: 'Usuário encontrado com sucesso'
+  })
+  @Get('/cpf/:cpf')
+  async getByCPF(@Param('cpf') cpf: string) {
+    const foundUser = await this.userAdminService.getByCPF(cpf)
+
+    if (!foundUser) {
+      throw new NotFoundException('Usuário não encontrado')
+    }
+
+    return foundUser
   }
 
   @ApiOperation({ summary: 'Deleta um usuário por id' })
@@ -167,6 +199,6 @@ export class UsersAdminController {
   })
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    await this.userService.deleteUser(id)
+    await this.userPublicService.deleteUser(id)
   }
 }

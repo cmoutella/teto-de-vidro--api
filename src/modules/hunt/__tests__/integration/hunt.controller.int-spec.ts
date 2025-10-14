@@ -12,7 +12,7 @@ import {
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { mockUserService } from '@src/modules/users/__tests__/__mocks__'
 import { mockedUser } from '@src/modules/users/__tests__/__mocks__/data'
-import { UserService } from '@src/modules/users/services/user.service'
+import { UserPublicService } from '@src/modules/users/services/user.public.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
@@ -58,7 +58,7 @@ describe.only('HuntController | Integration Test', () => {
           provide: HuntService,
           useValue: mockHuntService
         },
-        { provide: UserService, useValue: mockUserService }
+        { provide: UserPublicService, useValue: mockUserService }
       ]
     })
       .overrideGuard(AuthGuard)

@@ -9,7 +9,7 @@ import { UserMongooseRepository } from './repositories/mongoose/user.mongoose.re
 import { UserRepository } from './repositories/user.repository'
 import { User, UserSchema } from './schemas/user.schema'
 import { ApplicationUserService } from './services/application-user.service'
-import { UserService } from './services/user.service'
+import { UserPublicService } from './services/user.public.service'
 
 @Module({
   imports: [
@@ -22,10 +22,10 @@ import { UserService } from './services/user.service'
       provide: UserRepository,
       useClass: UserMongooseRepository
     },
-    UserService,
+    UserPublicService,
     ApplicationUserService
   ],
   controllers: [UsersController, ApplicationUsersController],
-  exports: [UserService, UserRepository, ApplicationUserService]
+  exports: [UserPublicService, UserRepository, ApplicationUserService]
 })
 export class UsersCollectionModule {}

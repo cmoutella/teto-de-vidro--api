@@ -55,7 +55,23 @@ export class UserMongooseRepository implements UserRepository {
     return { id: id.toString(), ...otherData }
   }
 
-  async getAllUsers(): Promise<Omit<InterfaceUser, 'password'>[]> {
+  async updateUser(id: string, newData: Partial<InterfaceUser>) {
+    const user = await this.userModel
+      .updateOne({ _id: id }, { ...newData })
+      .exec()
+
+    if (!user) return
+
+    const { password: _password, ...updated } = await this.getById(id)
+
+    return updated
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.userModel.deleteOne({ _id: id }).exec()
+  }
+
+  async getAllUsers(): Promise<PublicInterfaceUser[]> {
     const users = await this.userModel
       .find()
       .lean<LeanDoc<InterfaceUser>[]>()
@@ -70,6 +86,56 @@ export class UserMongooseRepository implements UserRepository {
     return users
   }
 
+  async getById(id: string): Promise<InterfaceUser> {
+    const foundUser = await this.userModel
+      .findById({ _id: id })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    if (!foundUser) {
+      return
+    }
+
+    const { _id, ...userData } = foundUser
+
+    return {
+      id: _id.toString(),
+      ...userData
+    }
+  }
+
+  async getByEmail(email: string): Promise<InterfaceUser> {
+    const user = await this.userModel
+      .findOne({ email: email })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    if (!user) return
+
+    const { _id, ...userData } = user
+
+    return {
+      id: _id.toString(),
+      ...userData
+    }
+  }
+
+  async getByCPF(cpf: string): Promise<InterfaceUser | null> {
+    const user = await this.userModel
+      .findOne({ cpf: cpf })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    if (!user) return null
+
+    const { _id, ...userData } = user
+    return {
+      id: _id.toString(),
+      ...userData
+    }
+  }
+
+  /** APPLICATION USERS */
   async getApplications(): Promise<PublicInterfaceUser[]> {
     const apps = await this.userModel
       .find({ role: 'app' })
@@ -96,69 +162,5 @@ export class UserMongooseRepository implements UserRepository {
     const { _id, ...otherData } = app
 
     return { ...otherData, id: _id.toString() }
-  }
-
-  async getById(id: string): Promise<InterfaceUser | null> {
-    const { _id, ...userData } = await this.userModel
-      .findById({ _id: id })
-      .lean<LeanDoc<InterfaceUser>>()
-      .exec()
-
-    const data = {
-      id: _id.toString(),
-      ...userData
-    }
-
-    return data
-  }
-
-  async getByEmail(email: string): Promise<InterfaceUser | null> {
-    const user = await this.userModel
-      .findOne({ email: email })
-      .lean<LeanDoc<InterfaceUser>>()
-      .exec()
-
-    if (!user) return null
-
-    const { _id, ...userData } = user
-    const data = {
-      id: _id.toString(),
-      ...userData
-    }
-
-    return data
-  }
-
-  async getByCPF(cpf: string): Promise<InterfaceUser | null> {
-    const user = await this.userModel
-      .findOne({ cpf: cpf })
-      .lean<LeanDoc<InterfaceUser>>()
-      .exec()
-
-    if (!user) return null
-
-    const { _id, ...userData } = user
-    const data = {
-      id: _id.toString(),
-      ...userData
-    }
-
-    return data
-  }
-
-  async updateUser(id: string, newData: Partial<InterfaceUser>) {
-    const user = await this.userModel
-      .updateOne({ _id: id }, { ...newData })
-      .exec()
-
-    if (!user) return
-
-    const { password: _password, ...updated } = await this.getById(id)
-
-    return updated
-  }
-
-  async deleteUser(id: string): Promise<void> {
-    await this.userModel.deleteOne({ _id: id }).exec()
   }
 }

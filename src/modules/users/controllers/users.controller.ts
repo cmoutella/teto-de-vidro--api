@@ -60,13 +60,13 @@ import {
 } from '../schemas/endpoints/public/zod-validation/update-user.public.zod-validation'
 import { InterfaceUser } from '../schemas/models/user.interface'
 import { User } from '../schemas/user.schema'
-import { UserService } from '../services/user.service'
+import { UserPublicService } from '../services/user.public.service'
 
 @ApiTags('user')
 @UseInterceptors(LoggingInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserPublicService) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)

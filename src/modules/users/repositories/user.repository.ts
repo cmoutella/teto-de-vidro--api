@@ -7,7 +7,7 @@ import type {
 export abstract class UserRepository {
   abstract createUser(newUser: CreateUser): Promise<PublicInterfaceUser>
   abstract getAllUsers(): Promise<PublicInterfaceUser[]>
-  abstract getById(username: string): Promise<InterfaceUser>
+  abstract getById(id: string): Promise<InterfaceUser>
   abstract getByEmail(email: string): Promise<InterfaceUser>
   abstract getByCPF(cpf: string): Promise<InterfaceUser>
 

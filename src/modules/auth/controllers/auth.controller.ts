@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
-import { UserService } from '@src/modules/users/services/user.service'
+import { UserPublicService } from '@src/modules/users/services/user.public.service'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
@@ -23,7 +23,7 @@ import { AuthService } from '../services/auth.service'
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly userService: UserService,
+    private readonly userService: UserPublicService,
     private readonly authService: AuthService
   ) {}
 
