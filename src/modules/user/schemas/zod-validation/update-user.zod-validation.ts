@@ -7,16 +7,24 @@ export const updateUserSchema = z.object({
   name: z.string(),
   familyName: z.string(),
 
-  accessLevel: z.number().optional(),
-  role: z.enum(USER_STATUS).optional(),
-
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),
-  birthDate: z.string(),
-
-  password: z.string()
+  birthDate: z.string()
 })
 export type UpdateUser = z.infer<typeof updateUserSchema>
+
+export const initialUpdateUserSchema = z.object({
+  cpf: z.string(),
+  birthDate: z.string()
+})
+export type InitialUpdateUser = z.infer<typeof initialUpdateUserSchema>
+
+// password
+export const updateUserPasswordSchema = z.object({
+  password: z.string()
+})
+
+export type UpdateUserPassword = z.infer<typeof updateUserPasswordSchema>
 
 // user email
 export const updateUserEmailSchema = z.object({

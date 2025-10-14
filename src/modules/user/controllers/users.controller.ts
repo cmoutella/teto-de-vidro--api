@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   Body,
   Controller,
   Delete,
@@ -6,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
@@ -35,6 +37,11 @@ import {
   GetOneUserSuccess
 } from '../schemas/endpoints/getUsers'
 import { InviteUserSchema } from '../schemas/endpoints/inviteUser'
+import {
+  InitialUpdateUserData,
+  UpdateUserData,
+  UpdateUserPassword
+} from '../schemas/endpoints/updateUser'
 import { InterfaceUser } from '../schemas/models/user.interface'
 import { User } from '../schemas/user.schema'
 import {
@@ -45,6 +52,14 @@ import {
   InviteUser,
   inviteUserSchema
 } from '../schemas/zod-validation/invite-user.zod-validation'
+import {
+  ChangePassword,
+  changePasswordSchema,
+  InitialUpdateUser,
+  initialUpdateUserSchema,
+  UpdateUser,
+  updateUserSchema
+} from '../schemas/zod-validation/update-user.zod-validation'
 import { UserService } from '../services/user.service'
 
 @ApiTags('user')
@@ -71,7 +86,7 @@ export class UsersController {
     status: 409,
     description: 'Email ou CPF já cadastrado'
   })
-  @Post()
+  @Post('/')
   async createUser(
     @Body(new ZodValidationPipe(createUserSchema), new EncryptPasswordPipe())
     {
@@ -107,75 +122,84 @@ export class UsersController {
     return createdUser
   }
 
+  @UseGuards(AuthGuard)
+  @UsePipes()
   @ApiBody({
-    type: InviteUserSchema,
-    description: 'Data needed to invite new user'
+    type: UpdateUserData,
+    description: 'Data needed to create new user'
   })
-  @ApiResponse({
-    type: CreateUserSuccess,
-    status: 201,
-    description: 'Usuário convidado criado com sucesso'
-  })
-  @ApiResponse({
-    type: CreateUserFailureException,
-    status: 409,
-    description: 'Email já cadastrado'
-  })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @UsePipes()
-  @ApiOperation({ summary: 'Convida um novo usuário' })
-  @Post('invite')
-  async inviteUser(
-    @Body(new ZodValidationPipe(inviteUserSchema))
-    invitedUser: InviteUser,
-    @CurrentUser() user: AuthenticatedUser
+  @Put('/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateUserSchema))
+    newData: UpdateUser
   ) {
-    if (
-      user.role !== 'admin' &&
-      user.role !== 'master' &&
-      user.role !== 'tester' &&
-      // user.role !== 'beta' &&
-      user.accessLevel === 0
-    ) {
-      throw new UnauthorizedException('Sem autorização para convidar usuários')
-    }
+    try {
+      const data = await this.userService.updateUser(id, newData)
 
-    return await this.userService.inviteUser(invitedUser, user.id)
-  }
-
-  @Get('validate-invite/:invitation')
-  async validateUserInvitation(@Param('invitation') invitation: string) {
-    const invitationData = await this.userService.validateInvitation(invitation)
-
-    if (!invitationData) {
-      throw new NotFoundException()
-    }
-
-    const data = {
-      invitationId: invitationData.invite.id,
-      welcomeCompleted: invitationData.invitedUser.welcomeCompleted,
-      user: {
-        name: invitationData.invitedUser.name,
-        id: invitationData.invitedUser.id
+      if (!data) {
+        throw new BadGatewayException()
       }
-    }
 
-    return data
+      return data
+    } catch (_err) {
+      console.error('ERROR @ User Controler | data update')
+    }
   }
 
-  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UsePipes()
-  @ApiOperation({
-    summary:
-      'Busca quantos usuários foram convidados por um determinado usuário'
+  @ApiBody({
+    type: InitialUpdateUserData,
+    description: 'Data needed to create new user'
   })
-  @Get(':id/invites')
-  async countInvitesSent(@Param('id') id: string) {
-    const invites = await this.userService.countInvitations(id)
+  @Put('/:id/initial-update')
+  async updateUserInitialSetup(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(initialUpdateUserSchema))
+    { cpf, birthDate }: InitialUpdateUser
+  ) {
+    try {
+      const data = await this.userService.initialUserDataUpdate(id, {
+        cpf,
+        birthDate
+      })
 
-    return { invitesSent: invites }
+      if (!data) {
+        throw new BadGatewayException()
+      }
+
+      return data
+    } catch (_err) {
+      console.error('ERROR @ User Controler | initial update')
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @UsePipes()
+  @ApiBody({
+    type: UpdateUserPassword,
+    description: 'Data needed to create new user'
+  })
+  @Put('/:id/new-password')
+  async updateUserPassword(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(changePasswordSchema))
+    { password }: ChangePassword
+  ) {
+    try {
+      const data = await this.userService.updateUserPassword(id, {
+        password
+      })
+
+      if (!data) {
+        throw new BadGatewayException()
+      }
+
+      return data
+    } catch (_err) {
+      console.error('ERROR @ User Controler | password update')
+    }
   }
 
   @ApiBearerAuth()
@@ -188,11 +212,7 @@ export class UsersController {
     return permissions
   }
 
-  // TODO: update user
-
   // TODO: update email
-
-  // TODO: update password
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -236,5 +256,77 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     await this.userService.deleteUser(id)
+  }
+
+  // INVITATIONS
+  @ApiBody({
+    type: InviteUserSchema,
+    description: 'Data needed to invite new user'
+  })
+  @ApiResponse({
+    type: CreateUserSuccess,
+    status: 201,
+    description: 'Usuário convidado criado com sucesso'
+  })
+  @ApiResponse({
+    type: CreateUserFailureException,
+    status: 409,
+    description: 'Email já cadastrado'
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes()
+  @ApiOperation({ summary: 'Convida um novo usuário' })
+  @Post('/invite')
+  async inviteUser(
+    @Body(new ZodValidationPipe(inviteUserSchema))
+    invitedUser: InviteUser,
+    @CurrentUser() user: AuthenticatedUser
+  ) {
+    if (
+      user.role !== 'admin' &&
+      user.role !== 'master' &&
+      user.role !== 'tester' &&
+      // user.role !== 'beta' &&
+      user.accessLevel === 0
+    ) {
+      throw new UnauthorizedException('Sem autorização para convidar usuários')
+    }
+
+    return await this.userService.inviteUser(invitedUser, user.id)
+  }
+
+  @Get('/validate-invite/:invitation')
+  async validateUserInvitation(@Param('invitation') invitation: string) {
+    const invitationData = await this.userService.validateInvitation(invitation)
+
+    if (!invitationData) {
+      throw new NotFoundException()
+    }
+
+    const data = {
+      invitationId: invitationData.invite.id,
+      welcomeCompleted: invitationData.invitedUser.welcomeCompleted,
+      user: {
+        name: invitationData.invitedUser.name,
+        id: invitationData.invitedUser.id
+      }
+    }
+
+    return data
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes()
+  @ApiOperation({
+    summary:
+      'Busca quantos usuários foram convidados por um determinado usuário'
+  })
+  @Get('/:id/invites')
+  async countInvitesSent(@Param('id') id: string) {
+    const invites = await this.userService.countInvitations(id)
+
+    return { invitesSent: invites }
   }
 }
