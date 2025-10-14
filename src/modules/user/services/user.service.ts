@@ -93,6 +93,92 @@ export class UserService {
     }
   }
 
+  async initialUserDataUpdate(
+    userId: string,
+    { cpf, birthDate }: Pick<InterfaceUser, 'cpf' | 'birthDate'>
+  ) {
+    try {
+      const updated = await this.userRepository.updateUser(userId, {
+        cpf,
+        birthDate
+      })
+
+      if (!updated) {
+        return
+      }
+
+      const updatedUser = await this.getById(userId)
+
+      return updatedUser
+    } catch (err) {
+      console.error('error', (err as Error).message)
+    }
+  }
+
+  async updateUserPassword(
+    userId: string,
+    { password }: Pick<InterfaceUser, 'password'>
+  ) {
+    try {
+      const updatedUser = await this.userRepository.updateUser(userId, {
+        password
+      })
+
+      if (!updatedUser) {
+        throw new Error('Error updating user password')
+      }
+
+      return updatedUser
+    } catch (err) {
+      if (err instanceof Error) {
+        throw err
+      }
+    }
+  }
+
+  async updateUser(userId, newData: Partial<InterfaceUser>) {
+    try {
+      const {
+        id: _id,
+        password: _password,
+        cpf: _cpf,
+        role: _role,
+        accessLevel: _accessLevel,
+        ...data
+      } = newData
+      const updatedUser = await this.userRepository.updateUser(userId, data)
+
+      if (!updatedUser) {
+        throw new Error('Error updating user password')
+      }
+
+      return updatedUser
+    } catch (err) {
+      if (err instanceof Error) {
+        throw err
+      }
+    }
+  }
+  async updateUserAccess(userId, newData: Partial<InterfaceUser>) {
+    try {
+      const { role, accessLevel, ..._rest } = newData
+      const updatedUser = await this.userRepository.updateUser(userId, {
+        role,
+        accessLevel
+      })
+
+      if (!updatedUser) {
+        throw new Error('Error updating user password')
+      }
+
+      return updatedUser
+    } catch (err) {
+      if (err instanceof Error) {
+        throw err
+      }
+    }
+  }
+
   async getUserPermissions(
     userId: string
   ): Promise<
@@ -111,6 +197,51 @@ export class UserService {
     return currentLimits
   }
 
+  async getAllUsers(): Promise<PublicInterfaceUser[]> {
+    return await this.userRepository.getAllUsers()
+  }
+
+  async getByEmail(email: string): Promise<
+    InterfaceUser & {
+      permissions: Omit<
+        AccessLevelPoliciesInterface,
+        'level' | 'createdAt' | 'updatedAt'
+      >
+    }
+  > {
+    const user = await this.userRepository.getByEmail(email)
+
+    if (!user) return
+
+    const permissions = await this.getUserPermissions(user.id)
+
+    return { ...user, permissions }
+  }
+
+  async getById(id: string): Promise<
+    InterfaceUser & {
+      permissions: Omit<
+        AccessLevelPoliciesInterface,
+        'level' | 'createdAt' | 'updatedAt'
+      >
+    }
+  > {
+    const user = await this.userRepository.getById(id)
+
+    if (!user) throw new NotFoundException()
+
+    const permissions = await this.getUserPermissions(user.id)
+
+    return { ...user, permissions }
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    const user = await this.userRepository.getById(id)
+    if (!user) throw new NotFoundException()
+    await this.userRepository.deleteUser(id)
+  }
+
+  // INVITES
   async inviteUser(
     user: InviteUser,
     invitationHostId: string
@@ -175,49 +306,5 @@ export class UserService {
 
   async countInvitations(userId: string) {
     await this.invitationService.countInvitationsSent(userId)
-  }
-
-  async getAllUsers(): Promise<PublicInterfaceUser[]> {
-    return await this.userRepository.getAllUsers()
-  }
-
-  async getByEmail(email: string): Promise<
-    InterfaceUser & {
-      permissions: Omit<
-        AccessLevelPoliciesInterface,
-        'level' | 'createdAt' | 'updatedAt'
-      >
-    }
-  > {
-    const user = await this.userRepository.getByEmail(email)
-
-    if (!user) return
-
-    const permissions = await this.getUserPermissions(user.id)
-
-    return { ...user, permissions }
-  }
-
-  async getById(id: string): Promise<
-    InterfaceUser & {
-      permissions: Omit<
-        AccessLevelPoliciesInterface,
-        'level' | 'createdAt' | 'updatedAt'
-      >
-    }
-  > {
-    const user = await this.userRepository.getById(id)
-
-    if (!user) throw new NotFoundException()
-
-    const permissions = await this.getUserPermissions(user.id)
-
-    return { ...user, permissions }
-  }
-
-  async deleteUser(id: string): Promise<void> {
-    const user = await this.userRepository.getById(id)
-    if (!user) throw new NotFoundException()
-    await this.userRepository.deleteUser(id)
   }
 }
