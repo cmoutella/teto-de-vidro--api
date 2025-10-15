@@ -1,4 +1,4 @@
-import { userId } from '@src/modules/hunt/__tests__/__mocks__/data'
+import { userId } from '@src/modules/hunt/__tests__/__mocks__/data.mock.hunt'
 import { Types } from 'mongoose'
 
 import type {

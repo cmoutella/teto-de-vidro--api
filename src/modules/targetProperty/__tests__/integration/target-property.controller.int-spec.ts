@@ -4,24 +4,26 @@ import {
   ConflictException,
   NotFoundException
 } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import { mockAmenityService } from '@src/modules/amenity/__tests__/__mocks__'
+import { mockAmenityService } from '@src/modules/amenity/__tests__/__mocks__/injectable.mock.amenity'
 import {
   Amenity,
   AmenitySchema
 } from '@src/modules/amenity/schemas/amenity.schema'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
-import { mockCommentService } from '@src/modules/comments/__tests__/__mocks__'
+import { mockCommentService } from '@src/modules/comments/__tests__/__mocks__/injectable.mock.amenity'
 import {
   Comment,
   CommentSchema
 } from '@src/modules/comments/schemas/comment.schema'
 import { CommentService } from '@src/modules/comments/services/comments.service'
-import { mockHuntService } from '@src/modules/hunt/__tests__/__mocks__'
+import { mockHuntService } from '@src/modules/hunt/__tests__/__mocks__/injectable.mock.hunt'
 import { HuntMongooseRepository } from '@src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
+import { AppService } from '@src/services/app.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -33,17 +35,17 @@ import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import {
-  mockTargetPropertyRepository,
-  mockTargetPropertyService
-} from '../__mocks__'
-import {
   amenity1,
   baseProperty,
   huntID,
   manyAmenities,
   mockUpdateComment,
   targetId
-} from '../__mocks__/data'
+} from '../__mocks__/data.mock.target-property'
+import {
+  mockTargetPropertyRepository,
+  mockTargetPropertyService
+} from '../__mocks__/injectable.mock.target-property'
 import { TargetPropertyController } from '../../controllers/target-property.controller'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type {
@@ -72,6 +74,7 @@ describe('TargetPropertyController | Integration Test', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot(),
         MongooseModule.forRoot(uri),
         MongooseModule.forFeature([
           { name: TargetProperty.name, schema: TargetPropertySchema },
@@ -82,6 +85,7 @@ describe('TargetPropertyController | Integration Test', () => {
       ],
       controllers: [TargetPropertyController],
       providers: [
+        AppService,
         {
           provide: TargetPropertyService,
           useValue: mockTargetPropertyService

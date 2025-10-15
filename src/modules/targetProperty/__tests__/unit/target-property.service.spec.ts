@@ -1,11 +1,12 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import { mockAddressService } from '@src/modules/address/__tests__/unit/__mocks__/address'
+import { mockAddressService } from '@src/modules/address/__tests__/__mocks__/injectable.mock.address'
 import { AddressService } from '@src/modules/address/services/address.service'
-import { mockHuntRepository } from '@src/modules/hunt/__tests__/__mocks__'
+import { mockHuntRepository } from '@src/modules/hunt/__tests__/__mocks__/injectable.mock.hunt'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
+import { AppService } from '@src/services/app.service'
 
-import { mockTargetPropertyRepository } from '../__mocks__'
 import {
   amenity1,
   baseProperty,
@@ -13,7 +14,8 @@ import {
   lotId,
   manyAmenities,
   propertyId
-} from '../__mocks__/data'
+} from '../__mocks__/data.mock.target-property'
+import { mockTargetPropertyRepository } from '../__mocks__/injectable.mock.target-property'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
 import { TargetPropertyService } from '../../services/target-property.service'
@@ -23,7 +25,9 @@ describe('TargetPropertyService | UnitTest', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
+        AppService,
         TargetPropertyService,
         {
           provide: TargetPropertyRepository,
