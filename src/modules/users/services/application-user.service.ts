@@ -9,11 +9,11 @@ import { PasswordGenerator } from '@src/shared/utils/password-generator.util'
 import { hash } from 'bcryptjs'
 
 import { UserRepository } from '../repositories/user.repository'
+import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import {
   InterfaceUser,
   PublicInterfaceUser
 } from '../schemas/models/user.interface'
-import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 
 @Injectable()
 export class ApplicationUserService {

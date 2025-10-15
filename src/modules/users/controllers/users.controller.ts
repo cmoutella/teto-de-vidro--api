@@ -1,6 +1,7 @@
 import {
   BadGatewayException,
   Body,
+  ConflictException,
   Controller,
   Get,
   NotFoundException,
@@ -218,6 +219,25 @@ export class UsersController {
       user.accessLevel === 0
     ) {
       throw new UnauthorizedException('Sem autorização para convidar usuários')
+    }
+
+    const host = await this.getById(user.id)
+
+    if (!host) {
+      throw new UnauthorizedException('Host não encontrado')
+    }
+
+    const hostLevelPermissions = await this.userService.getUserPermissions(
+      user.id
+    )
+
+    if (hostLevelPermissions.invitationsLimit <= 0) {
+      throw new UnauthorizedException('Host sem convites disponíveis')
+    }
+
+    const existingUserEmail = await this.userService.getByEmail(user.email)
+    if (existingUserEmail) {
+      throw new ConflictException('Email já cadastrado')
     }
 
     return await this.userService.inviteUser(invitedUser, user.id)

@@ -1,6 +1,8 @@
 import {
   BadGatewayException,
+  BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -84,6 +86,20 @@ export class UsersAdminController {
     }: AdminCreateUser,
     @CurrentUser() adminUser: AuthenticatedUser
   ) {
+    if (!email) {
+      throw new BadRequestException('Email or password missing')
+    }
+
+    if (!name) {
+      throw new BadRequestException('Name is required')
+    }
+
+    const existingUserEmail = await this.userAdminService.getByEmail(email)
+
+    if (existingUserEmail) {
+      throw new ConflictException('Email já cadastrado')
+    }
+
     const createdUser = await this.userAdminService.createUser(
       {
         email,

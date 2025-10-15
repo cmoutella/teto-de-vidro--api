@@ -1,8 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
-  BadRequestException,
   Inject,
   forwardRef,
   UnauthorizedException
@@ -36,20 +34,6 @@ export class UserAdminService {
     user: AdminCreateUser,
     operatorId: string
   ): Promise<PublicInterfaceUser> {
-    if (!user.email) {
-      throw new BadRequestException('Email or password missing')
-    }
-
-    if (!user.name) {
-      throw new BadRequestException('Name is required')
-    }
-
-    const existingUserEmail = await this.userRepository.getByEmail(user.email)
-
-    if (existingUserEmail) {
-      throw new ConflictException('Email já cadastrado')
-    }
-
     const createUser = {
       ...user,
       accessLevel: user.accessLevel ?? 0,
@@ -60,11 +44,16 @@ export class UserAdminService {
       'createdAt' | 'updatedAt' | 'lastLogin' | 'welcomeCompleted'
     >
 
+    if (!user.name || !user.email) {
+      return
+    }
+
     try {
       const newUser = await this.userRepository.createUser(createUser)
 
       if (!newUser) {
-        throw new Error('Erro ao criar usuário')
+        console.error(`# error @ UserAdminService - user not created`)
+        return
       }
 
       const invitation = await this.invitationService.addInvitation(
@@ -72,11 +61,11 @@ export class UserAdminService {
         newUser.id
       )
 
-      if (!invitation) {
-        throw new Error('Não foi possível enviar convite')
+      if (invitation) {
+        await this.mailService.welcome(newUser, invitation.invitationToken)
+      } else {
+        console.error(`Invitation Not sent to user ${newUser.id}`)
       }
-
-      await this.mailService.welcome(newUser, invitation.invitationToken)
 
       return newUser
     } catch (err) {

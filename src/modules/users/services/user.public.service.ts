@@ -1,10 +1,8 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
   Inject,
-  forwardRef,
-  UnauthorizedException
+  forwardRef
 } from '@nestjs/common'
 import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
 import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
@@ -106,9 +104,6 @@ export class UserPublicService {
     >
   > {
     const host = await this.userRepository.getById(userId)
-    if (!host) {
-      throw new UnauthorizedException('Host não encontrado')
-    }
 
     const currentLimits = await this.userLimitService.userAvailableLimits(host)
 
@@ -172,23 +167,6 @@ export class UserPublicService {
     user: InviteUser,
     invitationHostId: string
   ): Promise<SafeInterfaceUser> {
-    const host = await this.getById(invitationHostId)
-
-    if (!host) {
-      throw new UnauthorizedException('Host não encontrado')
-    }
-
-    const hostLevelPermissions = await this.getUserPermissions(invitationHostId)
-
-    if (hostLevelPermissions.invitationsLimit <= 0) {
-      throw new UnauthorizedException('Host sem convites disponíveis')
-    }
-
-    const existingUserEmail = await this.userRepository.getByEmail(user.email)
-    if (existingUserEmail) {
-      throw new ConflictException('Email já cadastrado')
-    }
-
     const createUser = {
       ...user,
       accessLevel: 0,
@@ -198,16 +176,20 @@ export class UserPublicService {
     try {
       const invited = await this.userRepository.inviteUser(createUser)
 
+      if (!invited) {
+        return
+      }
+
       const invitation = await this.invitationService.addInvitation(
         invitationHostId,
         invited.id
       )
 
-      if (!invitation) {
-        throw new Error('Não foi possível enviar convite')
+      if (invitation) {
+        await this.mailService.welcome(invited, invitation.invitationToken)
+      } else {
+        console.error('# Error @ UserPublicService | could create invite')
       }
-
-      await this.mailService.welcome(invited, invitation.invitationToken)
 
       return invited
     } catch (err) {

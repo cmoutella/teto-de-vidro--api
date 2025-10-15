@@ -28,3 +28,24 @@ export const mockedUser: InterfaceUser = {
   updatedAt: someDate,
   lastLogin: someDate
 }
+
+export const mockToCreateUser = {
+  name: 'Thomas',
+  familyName: 'Fletcher',
+  email: 'thomas@mcfly.com',
+  accessLevel: 1,
+  role: 'regular'
+}
+
+export const mockCreatedUser = {
+  ...mockToCreateUser,
+  id: 'created-mock-user-1',
+  createdAt: someDate,
+  updatedAt: someDate
+}
+
+export const mockToInviteUser = {
+  name: 'Dougie',
+  familyName: 'Poynter',
+  email: 'dougie@mcfly.com'
+}

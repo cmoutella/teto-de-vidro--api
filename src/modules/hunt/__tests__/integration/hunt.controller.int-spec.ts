@@ -11,8 +11,8 @@ import {
   TargetPropertySchema
 } from '@src/modules/targetProperty/schemas/target-property.schema'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
-import { mockUserService } from '@src/modules/users/__tests__/__mocks__'
-import { mockedUser } from '@src/modules/users/__tests__/__mocks__/data'
+import { mockedUser } from '@src/modules/users/__tests__/__mocks__/data.mock.users'
+import { mockUserPublicService } from '@src/modules/users/__tests__/__mocks__/injectable.mock.users'
 import { UserPublicService } from '@src/modules/users/services/user.public.service'
 import { AppService } from '@src/services/app.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
@@ -66,7 +66,7 @@ describe('HuntController | Integration Test', () => {
           provide: HuntService,
           useValue: mockHuntService
         },
-        { provide: UserPublicService, useValue: mockUserService }
+        { provide: UserPublicService, useValue: mockUserPublicService }
       ]
     })
       .overrideGuard(AuthGuard)
@@ -97,7 +97,7 @@ describe('HuntController | Integration Test', () => {
     it('should return created target if success', async () => {
       MockAuthGuard.allow = true
 
-      mockUserService.getById.mockResolvedValue(true)
+      mockUserPublicService.getById.mockResolvedValue(true)
       mockHuntService.createHunt.mockResolvedValue({
         ...huntMock,
         id: 'target-123'
@@ -131,7 +131,7 @@ describe('HuntController | Integration Test', () => {
     it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockUserService.getById.mockResolvedValue(mockedUser)
+      mockUserPublicService.getById.mockResolvedValue(mockedUser)
 
       await request(app.getHttpServer())
         .get(`/hunt/search/user`)
