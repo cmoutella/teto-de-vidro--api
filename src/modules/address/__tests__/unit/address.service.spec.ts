@@ -1,5 +1,7 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { AppService } from '@src/services/app.service'
 import { CEPService } from '@src/services/cep/cep.service'
 
 import { LotRepository } from '../../repositories/lot.repository'
@@ -7,19 +9,22 @@ import { PropertyRepository } from '../../repositories/property.repository'
 import { AddressService } from '../../services/address.service'
 import { LotService } from '../../services/lot-collection.service'
 import { PropertyService } from '../../services/property-collection.service'
-import { mockLotRepository } from './__mocks__/lot'
-import { mockPropertyRepository } from './__mocks__/property'
+import { mockLotRepository } from '../__mocks__/injectable.mock.lot'
+import { mockPropertyRepository } from '../__mocks__/injectable.mock.property'
 
 describe('AddressService | UnitTest', () => {
   let service: AddressService
 
   beforeAll(() => {
     process.env.OPENCEP_API = 'cep_url'
+    process.env.NODE_ENV = 'test'
   })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
+        AppService,
         AddressService,
         LotService,
         PropertyService,

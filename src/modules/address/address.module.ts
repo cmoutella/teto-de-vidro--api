@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import { AppModule } from '@src/app.module'
+import { CEPService } from '@src/services/cep/cep.service'
 
 import { AddressController } from './controllers/address.controller'
 import { LotRepository } from './repositories/lot.repository'
@@ -31,6 +32,7 @@ import { PropertyService } from './services/property-collection.service'
       useClass: PropertyMongooseRepository
     },
     LotService,
+    CEPService,
     PropertyService,
     AddressService
   ],
