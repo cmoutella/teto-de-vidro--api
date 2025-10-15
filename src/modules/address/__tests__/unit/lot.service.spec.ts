@@ -1,5 +1,6 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { CEPService } from '@src/services/cep/cep.service'
 
 import { LotRepository } from '../../repositories/lot.repository'
 import { LotService } from '../../services/lot-collection.service'
@@ -21,6 +22,7 @@ describe('LotService | UnitTest', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LotService,
+        CEPService,
         {
           provide: LotRepository,
           useValue: mockLotRepository
