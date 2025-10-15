@@ -1,10 +1,11 @@
 import type { INestApplication } from '@nestjs/common'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
-import { mockTargetPropertyService } from '@src/modules/targetProperty/__tests__/__mocks__'
+import { mockTargetPropertyService } from '@src/modules/targetProperty/__tests__/__mocks__/injectable.mock.target-property'
 import {
   TargetProperty,
   TargetPropertySchema
@@ -13,6 +14,7 @@ import { TargetPropertyService } from '@src/modules/targetProperty/services/targ
 import { mockUserService } from '@src/modules/users/__tests__/__mocks__'
 import { mockedUser } from '@src/modules/users/__tests__/__mocks__/data'
 import { UserPublicService } from '@src/modules/users/services/user.public.service'
+import { AppService } from '@src/services/app.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
@@ -22,8 +24,12 @@ import { AuthGuard } from 'src/shared/guards/auth.guard'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
-import { mockHuntService } from '../__mocks__'
-import { huntMock, huntObjectId, mockTargets } from '../__mocks__/data'
+import {
+  huntMock,
+  huntObjectId,
+  mockTargets
+} from '../__mocks__/data.mock.hunt'
+import { mockHuntService } from '../__mocks__/injectable.mock.hunt'
 import { HuntController } from '../../controllers/hunt-collection.controller'
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
 
@@ -31,7 +37,7 @@ import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
  * TODO
  * - testar validação com zod
  */
-describe.only('HuntController | Integration Test', () => {
+describe('HuntController | Integration Test', () => {
   let controller: HuntController
   let mongod: MongoMemoryServer
   let app: INestApplication
@@ -42,6 +48,7 @@ describe.only('HuntController | Integration Test', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot(),
         MongooseModule.forRoot(uri),
         MongooseModule.forFeature([
           { name: Hunt.name, schema: HuntSchema },
@@ -50,6 +57,7 @@ describe.only('HuntController | Integration Test', () => {
       ],
       controllers: [HuntController],
       providers: [
+        AppService,
         {
           provide: TargetPropertyService,
           useValue: mockTargetPropertyService
