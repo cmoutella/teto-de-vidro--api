@@ -1,8 +1,10 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { AppService } from '@src/services/app.service'
 
-import { mockCommentRepository } from '../__mocks__'
-import { mockCreateComment } from '../__mocks__/data'
+import { mockCreateComment } from '../__mocks__/data.mock.comment'
+import { mockCommentRepository } from '../__mocks__/injectable.mock.amenity'
 import { CommentRepository } from '../../repositories/comment.repository'
 import { CommentService } from '../../services/comments.service'
 
@@ -11,7 +13,9 @@ describe('CommentService | UnitTest', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
+        AppService,
         CommentService,
         {
           provide: CommentRepository,
