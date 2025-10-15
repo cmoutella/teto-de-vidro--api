@@ -27,5 +27,5 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src", "test"]
+  "include": ["src", "test", "jest.config.ts"]
 }

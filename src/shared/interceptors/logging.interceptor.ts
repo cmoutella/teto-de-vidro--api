@@ -17,7 +17,9 @@ export class LoggingInterceptor implements NestInterceptor {
   ): Observable<unknown> | Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest()
 
-    if (this.appService.isDev()) {
+    const isDev = this.appService.isDev()
+
+    if (isDev) {
       console.log('#####################')
       console.log('Request received:', request.method)
       console.log('route', request.route.path)
@@ -26,8 +28,12 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const now = Date.now()
 
-    return next
-      .handle()
-      .pipe(tap(() => console.log(`___After... ${Date.now() - now}ms`)))
+    return next.handle().pipe(
+      tap(() => {
+        if (isDev) {
+          console.log(`___After... ${Date.now() - now}ms`)
+        }
+      })
+    )
   }
 }
