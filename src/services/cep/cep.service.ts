@@ -1,4 +1,7 @@
+import { Injectable } from '@nestjs/common'
 import type { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface'
+
+import { AppService } from '../app.service'
 
 export interface ValidatedAddress {
   cep: string
@@ -19,14 +22,23 @@ export interface ValidatedAddressTranslated {
   uf: string
 }
 
-export function CEPService() {
-  const CEP_URL = process.env.OPENCEP_API
+@Injectable()
+export class CEPService {
+  constructor(private readonly appService: AppService) {}
 
-  if (!CEP_URL) {
-    throw new Error('CEP_URL secret not found')
+  url = this.appService.envVars().OPENCEP_API
+
+  init() {
+    if (!this.url) {
+      console.error('ERROR! Mail Service Token not set')
+    }
+
+    return this.url
   }
 
-  function objectTranslate(data: ValidatedAddress) {
+  CEP_URL = this.init()
+
+  objectTranslate(data: ValidatedAddress) {
     return {
       postalCode: data.cep,
       street: data.logradouro,
@@ -36,18 +48,20 @@ export function CEPService() {
     } as ValidatedAddressTranslated
   }
 
-  async function cepFetch(cep: string) {
+  async cepFetch(cep: string) {
     const cleanCEP = cep.replace(/\D/g, '').trim()
 
-    const data = await fetch(`${CEP_URL}/${cleanCEP}`).then((res) => res.json())
+    const data = await fetch(`${this.CEP_URL}/${cleanCEP}`).then((res) =>
+      res.json()
+    )
 
     if (!data) return null
 
-    return objectTranslate(data)
+    return this.objectTranslate(data)
   }
 
-  async function getAddress(cep: string) {
-    const verifiedData = await cepFetch(cep)
+  async getAddress(cep: string) {
+    const verifiedData = await this.cepFetch(cep)
 
     if (!verifiedData) {
       return null
@@ -56,8 +70,8 @@ export function CEPService() {
     return verifiedData
   }
 
-  async function validateAddress(cep: string, address: InterfaceLot) {
-    const verifiedData = await cepFetch(cep)
+  async validateAddress(cep: string, address: InterfaceLot) {
+    const verifiedData = await this.cepFetch(cep)
 
     if (!verifiedData) {
       return null
@@ -67,6 +81,4 @@ export function CEPService() {
 
     return verifiedDataKeys.every((key) => verifiedData[key] === address[key])
   }
-
-  return { get: getAddress, validate: validateAddress }
 }

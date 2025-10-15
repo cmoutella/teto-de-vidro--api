@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { AmenitiesController } from './controllers/amenity.controller'
 import { AmenityRepository } from './repositories/amenity.repository'
@@ -9,7 +10,8 @@ import { AmenityService } from './services/amenity.service'
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Amenity.name, schema: AmenitySchema }])
+    MongooseModule.forFeature([{ name: Amenity.name, schema: AmenitySchema }]),
+    forwardRef(() => AppModule)
   ],
   providers: [
     {

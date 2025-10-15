@@ -13,6 +13,9 @@ import { InvitationModule } from './modules/invitation/invitation.module'
 import { ScraperModule } from './modules/scraper/scraper.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
 import { UsersCollectionModule } from './modules/users/user.module'
+import { AppService } from './services/app.service'
+import { CEPService } from './services/cep/cep.service'
+import { MailService } from './services/mail/mail.service'
 
 @Module({
   imports: [
@@ -35,6 +38,8 @@ import { UsersCollectionModule } from './modules/users/user.module'
     ScraperModule,
     AmenitiesCollectionModule,
     CommentsCollectionModule
-  ]
+  ],
+  providers: [AppService, MailService, CEPService],
+  exports: [AppService, MailService, CEPService]
 })
 export class AppModule {}

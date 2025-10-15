@@ -9,7 +9,7 @@ import {
 import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
 import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
-import { mailService } from '@src/services/mail'
+import { MailService } from '@src/services/mail/mail.service'
 
 import { UserRepository } from '../repositories/user.repository'
 import { InviteUser } from '../schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
@@ -25,9 +25,10 @@ export class UserPublicService {
     @Inject(forwardRef(() => InvitationService))
     private readonly invitationService: InvitationService,
     @Inject(forwardRef(() => UserLimitService))
-    private readonly userLimitService: UserLimitService
+    private readonly userLimitService: UserLimitService,
+    @Inject(forwardRef(() => MailService))
+    private readonly mailService: MailService
   ) {}
-  email = mailService()
 
   async initialUserDataUpdate(
     userId: string,
@@ -206,7 +207,7 @@ export class UserPublicService {
         throw new Error('Não foi possível enviar convite')
       }
 
-      await this.email.welcome(invited, invitation.invitationToken)
+      await this.mailService.welcome(invited, invitation.invitationToken)
 
       return invited
     } catch (err) {

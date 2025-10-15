@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { AddressController } from './controllers/address.controller'
 import { LotRepository } from './repositories/lot.repository'
@@ -17,7 +18,8 @@ import { PropertyService } from './services/property-collection.service'
     MongooseModule.forFeature([
       { name: Lot.name, schema: LotSchema },
       { name: Property.name, schema: PropertySchema }
-    ])
+    ]),
+    forwardRef(() => AppModule)
   ],
   providers: [
     {

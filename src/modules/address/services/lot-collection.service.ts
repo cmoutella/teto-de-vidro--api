@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import { CEPService } from 'src/services/cep'
+import { CEPService } from '@src/services/cep/cep.service'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { LotRepository } from '../repositories/lot.repository'
@@ -14,17 +14,22 @@ import {
 
 @Injectable()
 export class LotService {
-  constructor(private readonly lotRepository: LotRepository) {}
+  constructor(
+    private readonly lotRepository: LotRepository,
+    private readonly cepService: CEPService
+  ) {}
 
   async createLot(newLot: InterfaceLot): Promise<InterfaceLot> {
-    const cep = CEPService()
-    const verifiedAddress = await cep.get(newLot.postalCode)
+    const verifiedAddress = await this.cepService.getAddress(newLot.postalCode)
 
     if (!verifiedAddress) {
       throw new BadRequestException('CEP inválido')
     }
 
-    const newLotIsValid = await cep.validate(newLot.postalCode, newLot)
+    const newLotIsValid = await this.cepService.validateAddress(
+      newLot.postalCode,
+      newLot
+    )
 
     const validLot = newLotIsValid ? newLot : { ...newLot, ...verifiedAddress }
 

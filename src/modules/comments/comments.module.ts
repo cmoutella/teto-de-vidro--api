@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { AddressModule } from '../address/address.module'
 import { UsersCollectionModule } from '../users/user.module'
@@ -12,6 +13,7 @@ import { CommentService } from './services/comments.service'
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+    forwardRef(() => AppModule),
     forwardRef(() => UsersCollectionModule),
     forwardRef(() => AddressModule)
   ],

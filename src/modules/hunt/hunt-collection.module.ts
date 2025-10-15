@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { TargetPropertyCollectionModule } from '../targetProperty/target-property.module'
 import { UsersCollectionModule } from '../users/user.module'
@@ -12,6 +13,7 @@ import { HuntService } from './services/hunt-collection.service'
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Hunt.name, schema: HuntSchema }]),
+    forwardRef(() => AppModule),
     forwardRef(() => TargetPropertyCollectionModule),
     forwardRef(() => UsersCollectionModule)
   ],

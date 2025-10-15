@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { AppService } from '@src/services/app.service'
 import { validateExpiration } from '@src/shared/utils/date/validate-expiration'
 
 import { InvitationRepository } from '../repositories/invitation.repository'
@@ -12,13 +13,14 @@ interface InviteTokenPayload {
 @Injectable()
 export class InvitationService {
   constructor(
+    private readonly appService: AppService,
     private readonly invitationRepository: InvitationRepository,
     private readonly jwtService: JwtService
   ) {}
 
   generateInvitationToken(payload: InviteTokenPayload): string {
     return this.jwtService.sign(payload, {
-      secret: process.env.JWT_INVITATION_SECRET,
+      secret: this.appService.envVars().JWT_INVITATION_SECRET,
       expiresIn: '7d'
     })
   }
@@ -47,7 +49,7 @@ export class InvitationService {
       const invitation: InviteTokenPayload = await this.jwtService.verifyAsync(
         invitationToken,
         {
-          secret: process.env.JWT_INVITATION_SECRET
+          secret: this.appService.envVars().JWT_INVITATION_SECRET
         }
       )
 

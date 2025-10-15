@@ -1,18 +1,29 @@
+import { Injectable } from '@nestjs/common'
 import type { PublicInterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 import { Resend } from 'resend'
 
+import { AppService } from '../app.service'
 import { welcomeBetaEmailTemplate } from './templates/welcome_beta.email'
 
-export function mailService() {
-  const token = process.env.EMAIL_TOKEN
+@Injectable()
+export class MailService {
+  constructor(private readonly appService: AppService) {}
 
-  if (!token) {
-    console.error('ERROR! Mail Service Token not set')
+  token = this.appService.envVars().EMAIL_TOKEN
+
+  init() {
+    if (!this.token) {
+      console.error('ERROR! Mail Service Token not set')
+    }
+    const resend = new Resend(this.token)
+
+    return resend
   }
-  const resend = new Resend(process.env.EMAIL_TOKEN)
 
-  async function welcome(user: PublicInterfaceUser, firstAccessValidation) {
-    const { data, error } = await resend.emails.send({
+  resend = this.init()
+
+  async welcome(user: PublicInterfaceUser, firstAccessValidation) {
+    const { data, error } = await this.resend.emails.send({
       from: 'Teto de Vidro <onboarding@resend.dev>',
       to: [user.email],
       subject: 'Boas vindas à Teto de Vidro!',
@@ -33,7 +44,7 @@ export function mailService() {
     console.log('email sent successfully!', { data })
   }
 
-  async function submit({
+  async submit({
     to,
     subject,
     html
@@ -42,7 +53,7 @@ export function mailService() {
     subject: string
     html: string
   }) {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await this.resend.emails.send({
       from: 'Teto de Vidro <onboarding@resend.dev>',
       to: [to],
       subject,
@@ -55,6 +66,4 @@ export function mailService() {
 
     console.log({ data })
   }
-
-  return { submit, welcome }
 }

@@ -10,6 +10,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from '@src/modules/auth/services/auth.service'
 import { ApplicationUserService } from '@src/modules/users/services/application-user.service'
+import { AppService } from '@src/services/app.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 
@@ -20,6 +21,7 @@ import { ScrapedAdData } from '../schemas/scraper.schema'
 @Controller('scraper')
 export class ScraperController {
   constructor(
+    private readonly appService: AppService,
     private readonly authService: AuthService,
     private readonly userService: ApplicationUserService
   ) {}
@@ -33,14 +35,14 @@ export class ScraperController {
   @Get('/')
   async scrapeAd(@Query() { url }: { url: string }) {
     try {
-      const scraperService = process.env.SCRAPER_SERVICE
+      const scraperService = this.appService.envVars().SCRAPER_SERVICE
       if (!scraperService) {
         console.error('secret SCRAPER_SERVICE not set')
         throw new Error()
       }
 
-      const scraperClient = process.env.SCRAPER_APP_CLIENT
-      const scraperKey = process.env.SCRAPER_APP_KEY
+      const scraperClient = this.appService.envVars().SCRAPER_APP_CLIENT
+      const scraperKey = this.appService.envVars().SCRAPER_APP_KEY
       if (!scraperClient || !scraperKey) {
         console.error('secret SCRAPER_APP_CLIENT or SCRAPER_APP_KEY not set')
         throw new UnauthorizedException()

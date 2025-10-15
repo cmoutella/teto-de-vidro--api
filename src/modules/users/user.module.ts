@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { AccessLevelPoliciesModule } from '../accessLevelPolicies/access-level-policies.module'
 import { InvitationModule } from '../invitation/invitation.module'
@@ -16,6 +17,7 @@ import { UserPublicService } from './services/user.public.service'
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    forwardRef(() => AppModule),
     forwardRef(() => InvitationModule),
     forwardRef(() => AccessLevelPoliciesModule)
   ],
