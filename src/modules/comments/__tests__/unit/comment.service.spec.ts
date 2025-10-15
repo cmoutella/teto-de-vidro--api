@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing'
 import { AppService } from '@src/services/app.service'
 
 import { mockCreateComment } from '../__mocks__/data.mock.comment'
-import { mockCommentRepository } from '../__mocks__/injectable.mock.amenity'
+import { mockCommentRepository } from '../__mocks__/injectable.mock.comment'
 import { CommentRepository } from '../../repositories/comment.repository'
 import { CommentService } from '../../services/comments.service'
 

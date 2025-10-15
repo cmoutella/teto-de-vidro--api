@@ -14,7 +14,7 @@ import {
   AmenitySchema
 } from '@src/modules/amenity/schemas/amenity.schema'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
-import { mockCommentService } from '@src/modules/comments/__tests__/__mocks__/injectable.mock.amenity'
+import { mockCommentService } from '@src/modules/comments/__tests__/__mocks__/injectable.mock.comment'
 import {
   Comment,
   CommentSchema
