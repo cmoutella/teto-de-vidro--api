@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -24,6 +25,7 @@ import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator
 import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { AppGuard } from '@src/shared/guards/app.guard'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
+import { normalizeCpf } from '@src/shared/utils/normalizers/normalizeCPF'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
@@ -101,8 +103,14 @@ export class UsersController {
     { cpf, birthDate }: InitialUpdateUser
   ) {
     try {
+      const normalizedCPF = normalizeCpf(cpf)
+
+      if (normalizedCPF) {
+        throw new BadRequestException('ERRDATA : cpf')
+      }
+
       const data = await this.userService.initialUserDataUpdate(id, {
-        cpf,
+        cpf: normalizedCPF,
         birthDate
       })
 
