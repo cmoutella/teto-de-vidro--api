@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Inject,
-  forwardRef
-} from '@nestjs/common'
+import { Injectable, Inject, forwardRef } from '@nestjs/common'
 import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
 import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
@@ -146,7 +141,7 @@ export class UserPublicService {
   > {
     const user = await this.userRepository.getById(id)
 
-    if (!user) throw new NotFoundException()
+    if (!user) return
 
     const {
       password: _password,

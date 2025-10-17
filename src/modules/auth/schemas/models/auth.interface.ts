@@ -11,3 +11,8 @@ export interface AuthenticatedUser {
   accessLevel: number
   role: UserRole
 }
+
+export interface AuthenticatedApplication {
+  appName: string
+  role: 'app'
+}

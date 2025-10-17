@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
+import { ApplicationUserService } from '@src/modules/users/services/application-user.service'
 import { UserAdminService } from '@src/modules/users/services/user.admin.service'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
@@ -24,6 +25,7 @@ import { AuthService } from '../services/auth.service'
 export class AuthController {
   constructor(
     private readonly userService: UserAdminService,
+    private readonly applicationUserService: ApplicationUserService,
     private readonly authService: AuthService
   ) {}
 
@@ -64,9 +66,9 @@ export class AuthController {
   async authApps(@Body() credentials: AuthCredentials) {
     const { email, password } = credentials
     try {
-      const foundApp = await this.userService.getByEmail(email)
+      const foundApp = await this.applicationUserService.getByName(email)
 
-      if (foundApp.role !== 'app') {
+      if (!foundApp || foundApp.role !== 'app') {
         throw new UnauthorizedException()
       }
 

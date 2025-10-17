@@ -9,37 +9,38 @@ import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AppGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService
   ) {}
 
-  private extractTokenFromHeader(request: Request) {
-    const [type, token] = request.headers.authorization?.split(' ') ?? []
+  private extractKeyFromHeader(request: Request) {
+    const appKey = request.headers['x-api-key'] ?? ''
 
-    return type === 'Bearer' ? token : null
+    return appKey
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
 
-    const token = this.extractTokenFromHeader(request)
+    const appKey = this.extractKeyFromHeader(request)
 
-    if (!token) {
+    if (!appKey) {
       throw new UnauthorizedException()
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('JWT_SECRET')
-      })
+      const payload: { appName: string; role: string } =
+        await this.jwtService.verifyAsync(appKey as string, {
+          secret: this.configService.get<string>('JWT_SECRET')
+        })
 
-      if (!payload.id || !payload.role) {
+      if (!payload.appName || !payload.role || payload.role !== 'app') {
         throw new UnauthorizedException('Token inválido')
       }
 
-      request['user'] = payload
+      request['application'] = payload
       return true
     } catch (err) {
       console.error('Erro na validação do token:', (err as Error).message)

@@ -22,7 +22,8 @@ import {
 } from '@nestjs/swagger'
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { AppGuard } from '@src/shared/guards/app.guard'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
@@ -58,8 +59,8 @@ import { UserPublicService } from '../services/user.public.service'
 export class UsersController {
   constructor(private readonly userService: UserPublicService) {}
 
-  @UseGuards(AuthGuard)
   @UsePipes()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Atualiza dados do usuário' })
   @ApiBody({
     type: UpdateUserData,
@@ -84,7 +85,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({
     summary: 'Update dos dados do usuario no fluxo de boas vindas'
@@ -115,7 +116,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({ summary: 'Atualização de senha do usuário' })
   @ApiBody({
@@ -147,7 +148,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({ summary: 'Retorna as permissões do usuário' })
   @Get(':id/permissions')
@@ -243,6 +244,8 @@ export class UsersController {
     return await this.userService.inviteUser(invitedUser, user.id)
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AppGuard)
   @ApiOperation({ summary: 'Valida um convite' })
   @Get('/validate-invite/:invitation')
   async validateUserInvitation(@Param('invitation') invitation: string) {
