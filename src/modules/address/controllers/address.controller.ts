@@ -18,7 +18,7 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 

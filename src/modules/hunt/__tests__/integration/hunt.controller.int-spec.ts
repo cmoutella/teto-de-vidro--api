@@ -20,7 +20,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import { HuntService } from 'src/modules/hunt/services/hunt-collection.service'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
