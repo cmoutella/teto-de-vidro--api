@@ -1,13 +1,15 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { AppService } from '@src/services/app.service'
 
-import { mockAmenityRepository } from '../__mocks__'
 import {
   baseAmenity,
   mockAllAmenities,
   oneMoreAmenity,
   otherAmenity
-} from '../__mocks__/data'
+} from '../__mocks__/data.mock.amenity'
+import { mockAmenityRepository } from '../__mocks__/injectable.mock.amenity'
 import { AmenityRepository } from '../../repositories/amenity.repository'
 import type { SearchAmenity } from '../../schemas/models/amenity.interface'
 import { AmenityService } from '../../services/amenity.service'
@@ -17,7 +19,9 @@ describe('AmenityService | UnitTest', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
+        AppService,
         AmenityService,
         {
           provide: AmenityRepository,

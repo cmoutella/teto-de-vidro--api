@@ -7,7 +7,7 @@ import { InvitationInterface } from './model/invitation.interface'
 export type InvitationDocument = HydratedDocument<Invitation>
 
 export enum InvitationStatusEnum {
-  pending = 'invited',
+  pending = 'pending',
   accepted = 'accepted',
   declined = 'declined'
 }
@@ -16,11 +16,8 @@ export enum InvitationStatusEnum {
 export class Invitation implements InvitationInterface {
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id?: string
+  id: string
 
-  @ApiProperty()
-  @Prop()
-  title: string
   @ApiProperty()
   @Prop({ type: String, enum: Object.values(InvitationStatusEnum) })
   status: InvitationStatusEnum
@@ -31,6 +28,9 @@ export class Invitation implements InvitationInterface {
   @Prop()
   invitedUserId: string
 
+  @ApiProperty()
+  @Prop()
+  expiresAt: string
   @ApiProperty()
   @Prop()
   createdAt: string

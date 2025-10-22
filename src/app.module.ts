@@ -12,7 +12,10 @@ import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { InvitationModule } from './modules/invitation/invitation.module'
 import { ScraperModule } from './modules/scraper/scraper.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
-import { UsersCollectionModule } from './modules/user/user.module'
+import { UsersCollectionModule } from './modules/users/user.module'
+import { AppService } from './services/app.service'
+import { CEPService } from './services/cep/cep.service'
+import { MailService } from './services/mail/mail.service'
 
 @Module({
   imports: [
@@ -20,21 +23,23 @@ import { UsersCollectionModule } from './modules/user/user.module'
       isGlobal: true
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
-    UsersCollectionModule,
-    AccessLevelPoliciesModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15d' }
     }),
-    AuthModule,
-    HuntCollectionModule,
-    TargetPropertyCollectionModule,
-    AddressModule,
-    AmenitiesCollectionModule,
-    CommentsCollectionModule,
+    UsersCollectionModule,
     InvitationModule,
-    ScraperModule
-  ]
+    AuthModule,
+    AccessLevelPoliciesModule,
+    TargetPropertyCollectionModule,
+    HuntCollectionModule,
+    AddressModule,
+    ScraperModule,
+    AmenitiesCollectionModule,
+    CommentsCollectionModule
+  ],
+  providers: [AppService, MailService, CEPService],
+  exports: [AppService, MailService, CEPService]
 })
 export class AppModule {}

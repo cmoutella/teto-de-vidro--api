@@ -3,13 +3,17 @@ import {
   Controller,
   InternalServerErrorException,
   Post,
+  Query,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors,
   UsePipes
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
-import { UserService } from '@src/modules/user/services/user.service'
+import { ApplicationUserService } from '@src/modules/users/services/application-user.service'
+import { UserAdminService } from '@src/modules/users/services/user.admin.service'
+import { AppGuard } from '@src/shared/guards/app.guard'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
@@ -21,16 +25,21 @@ import { AuthService } from '../services/auth.service'
 @ApiTags('auth')
 @UseInterceptors(LoggingInterceptor)
 @Controller('auth')
+@UseGuards(AppGuard)
 export class AuthController {
   constructor(
-    private readonly userService: UserService,
+    private readonly userService: UserAdminService,
+    private readonly applicationUserService: ApplicationUserService,
     private readonly authService: AuthService
   ) {}
 
   @ApiOperation({ summary: 'Autentica um usuário' })
-  @UsePipes(new ZodValidationPipe(loginSchema))
+  @UsePipes()
   @Post('/login')
-  async authUser(@Body() credentials: AuthCredentials) {
+  async authUser(
+    @Body(new ZodValidationPipe(loginSchema)) credentials: AuthCredentials,
+    @Query('welcome-completed') welcomeCompleted?: string
+  ) {
     const { email, password } = credentials
     try {
       const foundUser = await this.userService.getByEmail(email)
@@ -43,6 +52,12 @@ export class AuthController {
 
       if (!passwordMatch) {
         throw new UnauthorizedException('Usuário ou senha incorretos')
+      }
+
+      if (welcomeCompleted && welcomeCompleted === 'true') {
+        await this.userService.updateUser(foundUser.id, {
+          welcomeCompleted: true
+        })
       }
 
       const auth = this.authService.authenticateUser(foundUser)
@@ -64,9 +79,9 @@ export class AuthController {
   async authApps(@Body() credentials: AuthCredentials) {
     const { email, password } = credentials
     try {
-      const foundApp = await this.userService.getByEmail(email)
+      const foundApp = await this.applicationUserService.getByName(email)
 
-      if (foundApp.role !== 'app') {
+      if (!foundApp || foundApp.role !== 'app') {
         throw new UnauthorizedException()
       }
 

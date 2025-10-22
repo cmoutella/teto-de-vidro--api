@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { CEPService, ValidatedAddressTranslated } from 'src/services/cep'
+import {
+  CEPService,
+  ValidatedAddressTranslated
+} from '@src/services/cep/cep.service'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { LotRepository } from '../repositories/lot.repository'
@@ -16,10 +19,9 @@ import { InterfaceProperty } from '../schemas/models/property.interface'
 export class AddressService {
   constructor(
     private readonly lotRepository: LotRepository,
-    private readonly propertyRepository: PropertyRepository
+    private readonly propertyRepository: PropertyRepository,
+    private readonly cepService: CEPService
   ) {}
-
-  cep = CEPService()
 
   // para ser utilizado integrado ao service de target
   async createAddress(
@@ -37,7 +39,7 @@ export class AddressService {
     let cepAddress: ValidatedAddressTranslated | null = null
     if (address.postalCode && address.postalCode !== '') {
       // faz a busca pelo cep
-      cepAddress = await this.cep.get(address.postalCode)
+      cepAddress = await this.cepService.getAddress(address.postalCode)
     }
 
     let relatedLot: InterfaceLot | null = null

@@ -1,4 +1,4 @@
-import { inviteUserSchema } from '@src/modules/user/schemas/zod-validation/invite-user.zod-validation'
+import { inviteUserSchema } from '@src/modules/users/schemas/endpoints/public/zod-validation/invite-user.public.zod-validation'
 import { CONTRACT_TYPE } from '@src/shared/const'
 import { z } from 'zod'
 

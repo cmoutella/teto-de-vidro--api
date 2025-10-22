@@ -484,7 +484,7 @@ export class TargetPropertyController {
   @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Get(':id/amenity/:amenity')
+  @Delete(':id/amenity/:amenity')
   async removeAmenityfromTarget(
     @Param('id') id: string,
     @Param('amenity')

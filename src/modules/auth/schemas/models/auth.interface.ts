@@ -1,4 +1,4 @@
-import type { UserRole } from '@src/modules/user/schemas/models/user.interface'
+import type { UserRole } from '@src/modules/users/schemas/models/user.interface'
 
 export interface AuthCredentials {
   email: string
@@ -10,4 +10,9 @@ export interface AuthenticatedUser {
   email: string
   accessLevel: number
   role: UserRole
+}
+
+export interface AuthenticatedApplication {
+  appName: string
+  role: 'app'
 }

@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 
@@ -29,6 +30,7 @@ describe('PropertyService | UnitTest', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
         PropertyService,
         {

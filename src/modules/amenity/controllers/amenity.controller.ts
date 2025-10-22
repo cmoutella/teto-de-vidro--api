@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AMENITY_FROM } from '@src/shared/const'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 import { z } from 'zod'

@@ -11,8 +11,8 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { differenceInMinutes } from 'date-fns'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 import { z } from 'zod'

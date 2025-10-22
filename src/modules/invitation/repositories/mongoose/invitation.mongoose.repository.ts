@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { LeanDoc } from '@src/shared/types/mongoose'
+import { addDays } from 'date-fns'
 import { Model } from 'mongoose'
 
 import { Invitation } from '../../schema/invitation.schema'
@@ -20,7 +21,8 @@ export class InvitationMongooseRepository implements InvitationRepository {
     const newInvitation = new this.invitationModel({
       userId,
       invitedUserId,
-      status: 'invited',
+      status: 'pending',
+      expiresAt: addDays(now, 7).toISOString(),
       createdAt: now,
       updatedAt: now
     })
@@ -35,6 +37,18 @@ export class InvitationMongooseRepository implements InvitationRepository {
     const { _id, __v, ...data } = created
 
     return { id: _id, ...data } as InvitationInterface
+  }
+
+  async getInvitationById(id: string): Promise<InvitationInterface> {
+    const foundInvite = await this.invitationModel.findById(id).exec()
+
+    if (!foundInvite) {
+      return
+    }
+
+    const { _id, ...data } = foundInvite.toObject()
+
+    return { ...data, id: _id.toString() }
   }
 
   async listUserAcceptedInvitations(

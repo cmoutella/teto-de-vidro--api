@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { InvitationRepository } from './repositories/invitation.repository'
 import { InvitationMongooseRepository } from './repositories/mongoose/invitation.mongoose.repository'
@@ -10,7 +11,8 @@ import { InvitationService } from './service/invitation.service'
   imports: [
     MongooseModule.forFeature([
       { name: Invitation.name, schema: InvitationSchema }
-    ])
+    ]),
+    forwardRef(() => AppModule)
   ],
   providers: [
     {

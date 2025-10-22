@@ -33,16 +33,16 @@ import {
 import { updateLevelPoliciesSchema } from '../schema/zod-validation/update'
 import { AccessLevelPoliciesService } from '../services/access-level-policies.service'
 
-@ApiTags('Level de Acesso: Policies')
+@ApiTags('admin/access-policies')
 @UseInterceptors(LoggingInterceptor)
 @UseGuards(AdminGuard)
-@Controller('access-policies')
+@ApiBearerAuth()
+@Controller('admin/access-policies')
 export class AccessLevelPoliciesController {
   constructor(
     private readonly accessPoliciesService: AccessLevelPoliciesService
   ) {}
 
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualiza um comentário' })
   @ApiBody({
     type: AccessLevelPolicies,
@@ -76,7 +76,6 @@ export class AccessLevelPoliciesController {
     }
   }
 
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualiza um comentário' })
   @ApiBody({
     type: AccessLevelPolicies,

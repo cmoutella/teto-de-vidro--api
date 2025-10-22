@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import { AppModule } from '@src/app.module'
 
 import { HuntCollectionModule } from '../hunt/hunt-collection.module'
 import { InvitationModule } from '../invitation/invitation.module'
@@ -18,6 +19,7 @@ import { UserLimitService } from './services/user-limit.service'
     MongooseModule.forFeature([
       { name: AccessLevelPolicies.name, schema: AccessLevelPoliciesSchema }
     ]),
+    forwardRef(() => AppModule),
     forwardRef(() => InvitationModule),
     forwardRef(() => HuntCollectionModule)
   ],

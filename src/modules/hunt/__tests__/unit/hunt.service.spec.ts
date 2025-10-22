@@ -1,9 +1,11 @@
+import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
+import { AppService } from '@src/services/app.service'
 
-import { mockHuntRepository } from '../__mocks__'
-import { baseHunt } from '../__mocks__/data'
+import { baseHunt } from '../__mocks__/data.mock.hunt'
+import { mockHuntRepository } from '../__mocks__/injectable.mock.hunt'
 import type {
   CreateHuntServiceDate,
   InterfaceHunt
@@ -15,7 +17,9 @@ describe('HuntService | UnitTest', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
+        AppService,
         HuntService,
         {
           provide: HuntRepository,

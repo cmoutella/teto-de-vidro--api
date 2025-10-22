@@ -25,8 +25,8 @@ import {
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
-import { UserService } from '@src/modules/user/services/user.service'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { UserPublicService } from '@src/modules/users/services/user.public.service'
+import { AuthGuard } from '@src/shared/guards/auth.guard'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe'
@@ -62,8 +62,8 @@ export class HuntController {
     private readonly huntService: HuntService,
     @Inject(forwardRef(() => TargetPropertyService))
     private readonly targetPropertyService: TargetPropertyService,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService
+    @Inject(forwardRef(() => UserPublicService))
+    private readonly userService: UserPublicService
   ) {}
 
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
