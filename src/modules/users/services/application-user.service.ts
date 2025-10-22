@@ -8,16 +8,16 @@ import {
 import { PasswordGenerator } from '@src/shared/utils/password-generator.util'
 import { hash } from 'bcryptjs'
 
-import { UserRepository } from '../repositories/user.repository'
+import { UserApplicationRepository } from '../repositories/application.repository'
 import { CreateUser } from '../schemas/endpoints/public/zod-validation/create-user.public.zod-validation'
 import {
-  InterfaceUser,
-  PublicInterfaceUser
-} from '../schemas/models/user.interface'
+  InterfaceApplicationUser,
+  PublicInterfaceApplicationUser
+} from '../schemas/models/application.interface'
 
 @Injectable()
 export class ApplicationUserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserApplicationRepository) {}
 
   async createApplication(newApp: CreateUser) {
     if (!newApp.name) {
@@ -40,10 +40,9 @@ export class ApplicationUserService {
       throw new InternalServerErrorException()
     }
 
-    const createdApplication = await this.userRepository.createUser({
+    const createdApplication = await this.userRepository.createApp({
       email: newApp.email,
       name: appName,
-      accessLevel: 1,
       role: 'app',
       password
     })
@@ -55,11 +54,11 @@ export class ApplicationUserService {
     }
   }
 
-  async listApplications(): Promise<PublicInterfaceUser[]> {
-    return await this.userRepository.getApplications()
+  async listApplications(): Promise<PublicInterfaceApplicationUser[]> {
+    return await this.userRepository.getApps()
   }
 
-  async getByName(name: string): Promise<InterfaceUser> {
+  async getByName(name: string): Promise<InterfaceApplicationUser> {
     const app = await this.userRepository.getAppByName(name)
 
     if (!app) return
@@ -67,15 +66,15 @@ export class ApplicationUserService {
     return app
   }
 
-  async getByEmail(email: string): Promise<InterfaceUser> {
-    const user = await this.userRepository.getByEmail(email)
+  async getByEmail(email: string): Promise<InterfaceApplicationUser> {
+    const user = await this.userRepository.getByRepresentativeEmail(email)
 
     if (!user) return
 
     return user
   }
 
-  async getById(id: string): Promise<InterfaceUser> {
+  async getById(id: string): Promise<InterfaceApplicationUser> {
     const user = await this.userRepository.getById(id)
 
     if (!user) throw new NotFoundException()
@@ -86,6 +85,6 @@ export class ApplicationUserService {
   async deleteUser(id: string): Promise<void> {
     const user = await this.userRepository.getById(id)
     if (!user) throw new NotFoundException()
-    await this.userRepository.deleteUser(id)
+    await this.userRepository.deleteApp(id)
   }
 }

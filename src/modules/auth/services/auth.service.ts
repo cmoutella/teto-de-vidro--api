@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { InterfaceApplicationUser } from '@src/modules/users/schemas/models/application.interface'
 import { InterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 import { compare } from 'bcryptjs'
 import { addDays } from 'date-fns'
@@ -33,7 +34,7 @@ export class AuthService {
   }
 
   async authenticateApplication(
-    application: InterfaceUser,
+    application: InterfaceApplicationUser,
     credentials: AuthCredentials
   ) {
     if (application.role !== 'app') {

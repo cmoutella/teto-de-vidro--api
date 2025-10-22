@@ -5,6 +5,7 @@ import {
   Post,
   Query,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors,
   UsePipes
 } from '@nestjs/common'
@@ -12,6 +13,7 @@ import { ApiOperation } from '@nestjs/swagger'
 import { ApiTags } from '@nestjs/swagger'
 import { ApplicationUserService } from '@src/modules/users/services/application-user.service'
 import { UserAdminService } from '@src/modules/users/services/user.admin.service'
+import { AppGuard } from '@src/shared/guards/app.guard'
 import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
@@ -23,6 +25,7 @@ import { AuthService } from '../services/auth.service'
 @ApiTags('auth')
 @UseInterceptors(LoggingInterceptor)
 @Controller('auth')
+@UseGuards(AppGuard)
 export class AuthController {
   constructor(
     private readonly userService: UserAdminService,
