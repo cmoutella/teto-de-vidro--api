@@ -62,7 +62,7 @@ export class UsersController {
   constructor(private readonly userService: UserPublicService) {}
 
   @UsePipes()
-  @UseGuards(AuthGuard)
+  @UseGuards(AppGuard)
   @ApiOperation({ summary: 'Atualiza dados do usuário' })
   @ApiBody({
     type: UpdateUserData,
@@ -105,8 +105,8 @@ export class UsersController {
     try {
       const normalizedCPF = normalizeCpf(cpf)
 
-      if (normalizedCPF) {
-        throw new BadRequestException('ERRDATA : cpf')
+      if (!normalizedCPF) {
+        throw new BadRequestException('ERRDATA: cpf')
       }
 
       const data = await this.userService.initialUserDataUpdate(id, {
@@ -119,7 +119,8 @@ export class UsersController {
       }
 
       return data
-    } catch (_err) {
+    } catch (err) {
+      console.log(err)
       console.error('ERROR @ User Controler | initial update')
     }
   }
@@ -268,6 +269,7 @@ export class UsersController {
       welcomeCompleted: invitationData.invitedUser.welcomeCompleted,
       user: {
         name: invitationData.invitedUser.name,
+        email: invitationData.invitedUser.email,
         id: invitationData.invitedUser.id
       }
     }

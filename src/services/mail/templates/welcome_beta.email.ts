@@ -17,7 +17,7 @@ export function welcomeBetaEmailTemplate({
   return `
   <div style="padding: 32px 12px; color: #5e6977;">
     <div style="max-width: 700px;">
-      <h1 style="font-size: 24px; color: #378C87; margin-bottom: 32px;">
+      <h1 style="font-size: 24px; color: #378C87; margin-bottom: 32px; text-align: center;">
         Boas vindas, ${user.name}
       </h1>
 
@@ -28,12 +28,12 @@ export function welcomeBetaEmailTemplate({
           color: #5e6977;
         "
       >
-        <p style="display: block; margin-bottom: 8px;">Agora você é <b style="color: #378C87;">beta tester</b> na Teto de Vidro.</p>
-        <p style="display: block; margin-bottom: 28px">
+        <p style="display: block; margin-bottom: 8px; text-align: center;">Agora você é <b style="color: #378C87;">beta tester</b> na Teto de Vidro.</p>
+        <p style="display: block; margin-bottom: 28px; text-align: center;">
           Isso quer dizer que você vai <b style="color: #378C87;">ter acesso à ferramenta e às novas features
           antes de todo mundo!</b>
         </p>
-        <div style="display:block; margin-bottom: 28px;">
+        <div style="display: block; margin-bottom: 28px; text-align: center;">
           <p>
             Para começar a utilizar acesse o link abaixo e complete seu cadastro:
           </p>
@@ -59,21 +59,21 @@ export function welcomeBetaEmailTemplate({
             Esse convite é válido por 7 dias. Entre em contato para renovar se necessário.
           </p>
         </div>
-        <p style="display: block; margin-bottom: 8px;">
+        <p style="display: block; margin-bottom: 8px; text-align: center;">
           Estamos muito felizes em ter você conosco!
         </p>
-        <p style="display: block; margin-bottom: 8px;">
+        <p style="display: block; margin-bottom: 8px; text-align: center;">
           Obrigada por <b style="color: #378C87;">acreditar nesse sonho</b> com a gente!
         </p>
-        <p style="display: block; margin-bottom: 16px;">
+        <p style="display: block; margin-bottom: 16px; text-align: center;">
           Queremos saber o que você gostou, o que ficou confuso e o que poderia
           melhorar.
-        <p style="display: block; margin-bottom: 16px;">
+        <p style="display: block; margin-bottom: 16px; text-align: center;">
           ${user.gender === 'female' ? 'Juntas' : user.gender === 'male' ? 'Juntos' : 'Juntes'} vamos construir um <b style="color: #378C87;">mercado imobiliário mais transparente!</b>
         </p>
       </div>
 
-      <p style="display: block; font-size: 14px; color: #5e6977; margin-bottom: 8px">Atenciosamente,</p>
+      <p style="display: block; font-size: 14px; color: #5e6977; margin-bottom: 8px; text-align: right;">Atenciosamente,</p>
 
       <a
         href="${productUrl}" 
@@ -84,6 +84,7 @@ export function welcomeBetaEmailTemplate({
           font-weight: 600;
           text-decoration: none;
           cursor: pointer;
+          text-align: right;
       ">
         Teto de Vidro
       </a>

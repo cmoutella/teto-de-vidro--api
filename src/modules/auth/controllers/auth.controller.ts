@@ -3,6 +3,7 @@ import {
   Controller,
   InternalServerErrorException,
   Post,
+  Query,
   UnauthorizedException,
   UseInterceptors,
   UsePipes
@@ -30,9 +31,12 @@ export class AuthController {
   ) {}
 
   @ApiOperation({ summary: 'Autentica um usuário' })
-  @UsePipes(new ZodValidationPipe(loginSchema))
+  @UsePipes()
   @Post('/login')
-  async authUser(@Body() credentials: AuthCredentials) {
+  async authUser(
+    @Body(new ZodValidationPipe(loginSchema)) credentials: AuthCredentials,
+    @Query('welcome-completed') welcomeCompleted?: string
+  ) {
     const { email, password } = credentials
     try {
       const foundUser = await this.userService.getByEmail(email)
@@ -45,6 +49,12 @@ export class AuthController {
 
       if (!passwordMatch) {
         throw new UnauthorizedException('Usuário ou senha incorretos')
+      }
+
+      if (welcomeCompleted && welcomeCompleted === 'true') {
+        await this.userService.updateUser(foundUser.id, {
+          welcomeCompleted: true
+        })
       }
 
       const auth = this.authService.authenticateUser(foundUser)

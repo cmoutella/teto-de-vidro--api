@@ -4,12 +4,14 @@ import { GENDERS, USER_STATUS } from '../../../consts/shared'
 
 // user data
 export const updateUserSchema = z.object({
-  name: z.string(),
-  familyName: z.string(),
+  name: z.string().optional(),
+  familyName: z.string().optional(),
 
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),
-  birthDate: z.string()
+  birthDate: z.string().optional(),
+
+  welcomeCompleted: z.boolean().optional()
 })
 export type UpdateUser = z.infer<typeof updateUserSchema>
 
