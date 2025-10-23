@@ -161,8 +161,8 @@ export class UsersController {
   @UsePipes()
   @ApiOperation({ summary: 'Retorna as permissões do usuário' })
   @Get(':id/permissions')
-  async getUserPermissions(@CurrentUser() user: AuthenticatedUser) {
-    const permissions = await this.userService.getUserPermissions(user.id)
+  async getUserPermissions(@Param('id') id: string) {
+    const permissions = await this.userService.getUserPermissions(id)
 
     return permissions
   }

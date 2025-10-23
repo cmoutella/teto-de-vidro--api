@@ -25,7 +25,6 @@ import { AuthService } from '../services/auth.service'
 @ApiTags('auth')
 @UseInterceptors(LoggingInterceptor)
 @Controller('auth')
-@UseGuards(AppGuard)
 export class AuthController {
   constructor(
     private readonly userService: UserAdminService,
@@ -35,6 +34,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Autentica um usuário' })
   @UsePipes()
+  @UseGuards(AppGuard)
   @Post('/login')
   async authUser(
     @Body(new ZodValidationPipe(loginSchema)) credentials: AuthCredentials,
