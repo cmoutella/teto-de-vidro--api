@@ -16,4 +16,4 @@ WORKDIR /app/dist
 
 EXPOSE 8080
 
-CMD ["node", ".src/main.js"]
+CMD ["node", "src/main.js"]
