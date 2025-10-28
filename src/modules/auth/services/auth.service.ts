@@ -56,7 +56,7 @@ export class AuthService {
     }
 
     const authDate = new Date()
-    const token = await this.jwtService.sign(payload, { expiresIn: '100d' })
+    const token = await this.jwtService.sign(payload, { expiresIn: '5d' })
     const tokenExpiration = addDays(authDate, 100)
 
     return {
