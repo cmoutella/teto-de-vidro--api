@@ -18,7 +18,10 @@ import { ZodValidationPipe } from '@src/shared/pipe/zod-validation.pipe'
 import { compare } from 'bcryptjs'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 
-import { AuthCredentials } from '../schemas/models/auth.interface'
+import {
+  ApplicationAuthCredentials,
+  AuthCredentials
+} from '../schemas/models/auth.interface'
 import { loginSchema } from '../schemas/zod-validation/login.zod-validation'
 import { AuthService } from '../services/auth.service'
 
@@ -76,16 +79,17 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Autentica uma aplicação' })
   @Post('/apps')
-  async authApps(@Body() credentials: AuthCredentials) {
-    const { email, password } = credentials
+  async authApps(@Body() credentials: ApplicationAuthCredentials) {
+    const { app, key } = credentials
+
     try {
-      const foundApp = await this.applicationUserService.getByName(email)
+      const foundApp = await this.applicationUserService.getByName(app)
 
       if (!foundApp || foundApp.role !== 'app') {
         throw new UnauthorizedException()
       }
 
-      const passwordMatch = await compare(password, foundApp.password)
+      const passwordMatch = await compare(key, foundApp.password)
 
       if (!passwordMatch) {
         throw new UnauthorizedException('Usuário ou senha incorretos')

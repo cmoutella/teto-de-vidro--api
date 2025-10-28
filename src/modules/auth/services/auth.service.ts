@@ -5,7 +5,7 @@ import { InterfaceUser } from '@src/modules/users/schemas/models/user.interface'
 import { compare } from 'bcryptjs'
 import { addDays } from 'date-fns'
 
-import { AuthCredentials } from '../schemas/models/auth.interface'
+import { ApplicationAuthCredentials } from '../schemas/models/auth.interface'
 
 @Injectable()
 export class AuthService {
@@ -35,16 +35,13 @@ export class AuthService {
 
   async authenticateApplication(
     application: InterfaceApplicationUser,
-    credentials: AuthCredentials
+    credentials: ApplicationAuthCredentials
   ) {
     if (application.role !== 'app') {
       return
     }
 
-    const passwordMatch = await compare(
-      credentials.password,
-      application.password
-    )
+    const passwordMatch = await compare(credentials.key, application.password)
 
     if (!passwordMatch) throw new Error('Usuário ou senha incorretos')
 

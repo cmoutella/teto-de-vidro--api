@@ -55,8 +55,8 @@ export class ScraperController {
       }
 
       const data = await this.authService.authenticateApplication(app, {
-        email: app.email,
-        password: scraperKey
+        app: app.name,
+        key: scraperKey
       })
 
       if (!data.token) {

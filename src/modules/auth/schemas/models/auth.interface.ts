@@ -12,6 +12,10 @@ export interface AuthenticatedUser {
   role: UserRole
 }
 
+export interface ApplicationAuthCredentials {
+  app: string
+  key: string
+}
 export interface AuthenticatedApplication {
   appName: string
   role: 'app'

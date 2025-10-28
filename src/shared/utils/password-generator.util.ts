@@ -20,7 +20,7 @@ export class PasswordGenerator {
    */
   static generateComplexPassword(length: number = 32): string {
     const charset =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%^&*()_+-=[]{}|;:,.<>?'
     const bytes = randomBytes(length)
 
     return Array.from(bytes)
