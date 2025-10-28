@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { AppController } from './app.controller'
 import { AccessLevelPoliciesModule } from './modules/accessLevelPolicies/access-level-policies.module'
 import { AddressModule } from './modules/address/address.module'
 import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
@@ -39,6 +40,7 @@ import { MailService } from './services/mail/mail.service'
     AmenitiesCollectionModule,
     CommentsCollectionModule
   ],
+  controllers: [AppController],
   providers: [AppService, MailService, CEPService],
   exports: [AppService, MailService, CEPService]
 })
