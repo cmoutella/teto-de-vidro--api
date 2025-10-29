@@ -3,6 +3,7 @@ import type { PublicInterfaceUser } from '@src/modules/users/schemas/models/user
 import { Resend } from 'resend'
 
 import { AppService } from '../app.service'
+import { contacts } from './mail'
 import { welcomeBetaEmailTemplate } from './templates/welcome_beta.email'
 
 @Injectable()
@@ -24,7 +25,7 @@ export class MailService {
 
   async welcome(user: PublicInterfaceUser, firstAccessValidation) {
     const { data, error } = await this.resend.emails.send({
-      from: 'Teto de Vidro <onboarding@resend.dev>',
+      from: `${contacts.default.name} <${contacts.default.email}>`,
       to: [user.email],
       subject: 'Boas vindas à Teto de Vidro!',
       html: welcomeBetaEmailTemplate({
@@ -54,7 +55,7 @@ export class MailService {
     html: string
   }) {
     const { data, error } = await this.resend.emails.send({
-      from: 'Teto de Vidro <onboarding@resend.dev>',
+      from: `${contacts.default.name} <${contacts.default.email}>`,
       to: [to],
       subject,
       html
