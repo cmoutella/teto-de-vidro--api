@@ -42,7 +42,9 @@ export class MailService {
       return console.error('EMAIL SERVICE ERROR', { error })
     }
 
-    console.log('email sent successfully!', { data })
+    if (this.appService.getEnvironment() === 'development') {
+      console.log('email sent successfully!', { data })
+    }
   }
 
   async submit({
