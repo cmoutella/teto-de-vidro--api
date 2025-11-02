@@ -23,8 +23,7 @@ export enum RoleAsEnum {
   beta = 'beta',
   regular = 'regular',
   guest = 'guest',
-  tester = 'tester',
-  app = 'app'
+  tester = 'tester'
 }
 
 export type UserDocument = HydratedDocument<User>
