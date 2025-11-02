@@ -4,10 +4,3 @@ export const mockAccessLevelService = {
   updateAccessLevelPolicies: jest.fn(),
   deleteAccessLevelPolicies: jest.fn()
 }
-
-export const mockUserLimitService = {
-  huntAvailableLimit: jest.fn(),
-  invitesAvailableLimit: jest.fn(),
-  targetPerHuntLimit: jest.fn(),
-  userAvailableLimits: jest.fn()
-}

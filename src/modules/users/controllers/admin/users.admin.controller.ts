@@ -46,18 +46,14 @@ import {
 } from '../../schemas/endpoints/public/get-users.public.schema'
 import { UpdateUserData } from '../../schemas/endpoints/public/update-user.public.schema'
 import { UserAdminService } from '../../services/user.admin.service'
-import { UserPublicService } from '../../services/user.public.service'
 
 @ApiTags('admin/users')
 @ApiBearerAuth()
+@UseGuards(AdminGuard)
 @UseInterceptors(LoggingInterceptor)
 @Controller('admin/users')
-@UseGuards(AdminGuard)
 export class UsersAdminController {
-  constructor(
-    private readonly userPublicService: UserPublicService,
-    private readonly userAdminService: UserAdminService
-  ) {}
+  constructor(private readonly userAdminService: UserAdminService) {}
 
   @UsePipes()
   @ApiOperation({ summary: 'Cria um novo usuário' })
@@ -217,5 +213,22 @@ export class UsersAdminController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     await this.userAdminService.deleteUser(id)
+  }
+
+  // RUN GLOBAL USER UPDATES
+
+  // current: criar limits para todos os usuarios já criados
+  @Get('/script/generate-individual-limits')
+  async runUpdates() {
+    try {
+      console.log('running user updates')
+      const success = await this.userAdminService.runUpdateOnUserCollection()
+
+      console.log('success', success)
+
+      return { success: success }
+    } catch {
+      throw new Error()
+    }
   }
 }

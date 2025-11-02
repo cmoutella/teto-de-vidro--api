@@ -1,8 +1,9 @@
 import { ConfigModule } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import { mockUserLimitService } from '@src/modules/accessLevelPolicies/__tests__/__mocks__/injectable.mock.access-level-policies'
-import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
+import { mockAccessLevelPolicy } from '@src/modules/accessLevelPolicies/__tests__/__mocks__/data.mock.access-level-policies'
+import { mockAccessLevelService } from '@src/modules/accessLevelPolicies/__tests__/__mocks__/injectable.mock.access-level-policies'
+import { AccessLevelPoliciesService } from '@src/modules/accessLevelPolicies/services/access-level-policies.service'
 import { mockInvitationService } from '@src/modules/invitation/__tests__/__mocks__/injectable.mock.invitation'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
 import { mockMailService } from '@src/services/__tests__/__mocks__/injectable.mock.mail'
@@ -14,8 +15,12 @@ import {
   mockedUser,
   mockToInviteUser
 } from '../__mocks__/data.mock.users'
-import { mockUserRepository } from '../__mocks__/injectable.mock.users'
+import {
+  mockUserLimitsService,
+  mockUserRepository
+} from '../__mocks__/injectable.mock.users'
 import { UserRepository } from '../../repositories/user.repository'
+import { UserLimitsService } from '../../services/user-limits.service'
 import { UserPublicService } from '../../services/user.public.service'
 
 describe('UserPublicService | UnitTest', () => {
@@ -36,8 +41,12 @@ describe('UserPublicService | UnitTest', () => {
           useValue: mockInvitationService
         },
         {
-          provide: UserLimitService,
-          useValue: mockUserLimitService
+          provide: AccessLevelPoliciesService,
+          useValue: mockAccessLevelService
+        },
+        {
+          provide: UserLimitsService,
+          useValue: mockUserLimitsService
         },
         {
           provide: MailService,
@@ -83,6 +92,7 @@ describe('UserPublicService | UnitTest', () => {
       mockInvitationService.addInvitation.mockResolvedValue({
         invitationToken: 'mock-invitation-token'
       })
+      mockAccessLevelService.getByLevel.mockResolvedValue(mockAccessLevelPolicy)
 
       const created = await service.inviteUser(
         mockToInviteUser,
@@ -97,6 +107,7 @@ describe('UserPublicService | UnitTest', () => {
       mockInvitationService.addInvitation.mockResolvedValue({
         invitationToken: 'mock-invitation-token'
       })
+      mockAccessLevelService.getByLevel.mockResolvedValue(mockAccessLevelPolicy)
 
       await service.inviteUser(mockToInviteUser as never, 'tester-operator')
 

@@ -21,7 +21,4 @@ export abstract class UserRepository {
   abstract inviteUser(
     newUser: Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'role'>
   ): Promise<PublicInterfaceUser>
-
-  abstract getApplications(): Promise<PublicInterfaceUser[]>
-  abstract getAppByName(name: string): Promise<PublicInterfaceUser>
 }

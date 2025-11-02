@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { LeanDoc } from '@src/shared/types/mongoose'
 import { addDays } from 'date-fns'
@@ -51,6 +50,24 @@ export class InvitationMongooseRepository implements InvitationRepository {
     return { ...data, id: _id.toString() }
   }
 
+  async getInvitationByInvitedUser(
+    userId: string
+  ): Promise<InvitationInterface> {
+    try {
+      const invitation = await this.invitationModel
+        .findOne({
+          invitedUserId: userId
+        })
+        .exec()
+
+      const { __v, ...invite } = invitation
+
+      return invite
+    } catch {
+      console.error('ERROR @ invitation repository - get by invited user')
+    }
+  }
+
   async listUserAcceptedInvitations(
     userId: string
   ): Promise<InvitationInterface[]> {
@@ -79,23 +96,21 @@ export class InvitationMongooseRepository implements InvitationRepository {
   async updateInvitation(
     invitedUserId: string,
     data: Partial<InvitationInterface>
-  ): Promise<void> {
-    const invitation = await this.invitationModel
-      .find({
-        invitedUserId: invitedUserId
-      })
-      .exec()
+  ): Promise<boolean> {
+    const invitation = await this.getInvitationByInvitedUser(invitedUserId)
 
-    if (!invitation || invitation.length <= 0) {
-      throw new NotFoundException('Convite não encontrado')
+    if (!invitation) {
+      return
     }
 
-    await this.invitationModel
+    const updated = await this.invitationModel
       .updateOne(
-        { _id: invitation[0].id },
+        { invitedUserId: invitedUserId },
         { status: data.status, updatedAt: new Date().toISOString() }
       )
       .exec()
+
+    return updated.acknowledged && updated.modifiedCount >= 1
   }
 
   async deleteInvitation(id: string): Promise<void> {

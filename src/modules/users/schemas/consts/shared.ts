@@ -6,6 +6,7 @@ export const USER_STATUS = [
   'regular',
   'tester',
   'admin',
-  'master',
-  'app'
+  'master'
 ] as const
+
+export const APPLICATION_USER_ROLE = ['app'] as const

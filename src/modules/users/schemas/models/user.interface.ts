@@ -5,7 +5,6 @@ export type UserRole =
   | 'tester'
   | 'admin'
   | 'master'
-  | 'app'
 
 export type Gender = 'male' | 'female' | 'neutral'
 

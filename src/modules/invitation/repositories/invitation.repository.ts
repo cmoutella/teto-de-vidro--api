@@ -7,6 +7,9 @@ export abstract class InvitationRepository {
   ): Promise<InvitationInterface>
 
   abstract getInvitationById(id: string): Promise<InvitationInterface>
+  abstract getInvitationByInvitedUser(
+    userId: string
+  ): Promise<InvitationInterface>
 
   abstract listUserAcceptedInvitations(
     userId: string
@@ -19,7 +22,7 @@ export abstract class InvitationRepository {
   abstract updateInvitation(
     id: string,
     data: Partial<InvitationInterface>
-  ): Promise<void>
+  ): Promise<boolean>
 
   abstract deleteInvitation(id: string): Promise<void>
 }
