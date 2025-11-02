@@ -216,19 +216,13 @@ export class UsersAdminController {
   }
 
   // RUN GLOBAL USER UPDATES
+  // @Get('/script/run-update')
+  // async runUpdates() {
+  //   try {
 
-  // current: criar limits para todos os usuarios já criados
-  @Get('/script/generate-individual-limits')
-  async runUpdates() {
-    try {
-      console.log('running user updates')
-      const success = await this.userAdminService.runUpdateOnUserCollection()
-
-      console.log('success', success)
-
-      return { success: success }
-    } catch {
-      throw new Error()
-    }
-  }
+  //     // DO SOMETHING
+  //   } catch {
+  //     throw new Error()
+  //   }
+  // }
 }
