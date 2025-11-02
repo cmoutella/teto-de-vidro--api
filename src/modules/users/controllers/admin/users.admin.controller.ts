@@ -214,4 +214,21 @@ export class UsersAdminController {
   async deleteUser(@Param('id') id: string) {
     await this.userAdminService.deleteUser(id)
   }
+
+  // RUN GLOBAL USER UPDATES
+
+  // current: criar limits para todos os usuarios já criados
+  @Get('/script/generate-individual-limits')
+  async runUpdates() {
+    try {
+      console.log('running user updates')
+      const success = await this.userAdminService.runUpdateOnUserCollection()
+
+      console.log('success', success)
+
+      return { success: success }
+    } catch {
+      throw new Error()
+    }
+  }
 }

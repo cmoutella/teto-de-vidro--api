@@ -186,4 +186,32 @@ export class UserAdminService {
 
     await this.userRepository.deleteUser(id)
   }
+
+  // RUN UPDATES
+  async runUpdateOnUserCollection() {
+    try {
+      const currentUsers = await this.getAllUsers()
+
+      for (let i = 0; i < currentUsers.length; i++) {
+        const user = currentUsers[i]
+        const alreadyExists = await this.userLimitService.getByUser(user.id)
+
+        if (!alreadyExists) {
+          const baseLimits = await this.accessPoliciesService.getByLevel(
+            user.accessLevel
+          )
+
+          await this.userLimitService.createUserLimits(user.id, {
+            activeHuntsLimit: baseLimits.activeHuntsLimit,
+            targetsPerHuntLimit: baseLimits.targetsPerHuntLimit,
+            invitationsLimit: baseLimits.invitationsLimit
+          })
+        }
+      }
+      return true
+    } catch {
+      console.error('ERROR @ user admin update script')
+      return false
+    }
+  }
 }

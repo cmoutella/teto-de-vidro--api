@@ -51,12 +51,18 @@ export class UserLimitsService {
 
   async getByUser(userId: string) {
     try {
+      const foundLimits = await this.userLimitsRepository.getByUser(userId)
+
+      if (!foundLimits) {
+        return
+      }
+
       const {
         userId: _userId,
         createdAt: _createdAt,
         updatedAt: _updatedAt,
         ...limits
-      } = await this.userLimitsRepository.getByUser(userId)
+      } = foundLimits
 
       return limits
     } catch {
