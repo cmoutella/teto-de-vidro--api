@@ -82,6 +82,7 @@ export class UserPublicService {
         accessLevel: _accessLevel,
         ...data
       } = newData
+
       const updatedUser = await this.userRepository.updateUser(userId, data)
 
       if (!updatedUser) {
@@ -89,7 +90,9 @@ export class UserPublicService {
       }
 
       if (newData.welcomeCompleted === true) {
-        this.invitationService.updateInvitation(userId, { status: 'accepted' })
+        await this.invitationService.updateInvitation(userId, {
+          status: 'accepted'
+        })
       }
 
       return updatedUser

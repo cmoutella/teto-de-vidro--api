@@ -27,7 +27,6 @@ export class InvitationService {
   }
 
   async addInvitation(userId: string, invitedUserId: string) {
-    // TODO: verificar se tem um convite pendente válido para esse usuário
     try {
       const invited = await this.invitationRepository.addInvitation(
         userId,
@@ -42,6 +41,17 @@ export class InvitationService {
       return { invitationToken }
     } catch {
       console.error('Não foi possível cadastrar convite')
+    }
+  }
+
+  async getInvitationByInvitedUser(userId: string) {
+    try {
+      const foundUser =
+        await this.invitationRepository.getInvitationByInvitedUser(userId)
+
+      return foundUser
+    } catch {
+      console.log('ERROR @ invitation service - get by invited user')
     }
   }
 
@@ -83,7 +93,17 @@ export class InvitationService {
     invitedUserId: string,
     data: Partial<InvitationInterface>
   ) {
-    await this.invitationRepository.updateInvitation(invitedUserId, data)
+    try {
+      const updated = await this.invitationRepository.updateInvitation(
+        invitedUserId,
+        data
+      )
+
+      return updated
+    } catch {
+      console.error('ERROR @ invitation service - update invitation')
+      return false
+    }
   }
 
   async countInvitationsSent(userId: string) {
