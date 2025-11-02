@@ -21,6 +21,14 @@ export const mockUserAdminService = {
   deleteUser: jest.fn()
 }
 
+export const mockUserLimitsService = {
+  createUserLimits: jest.fn(),
+  updateUserLimits: jest.fn(),
+  minusOneInvitation: jest.fn(),
+  getByUser: jest.fn(),
+  deleteUserLimits: jest.fn()
+}
+
 export const mockUserApplicationService = {
   createApplication: jest.fn(),
   listApplications: jest.fn(),

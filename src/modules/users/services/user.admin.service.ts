@@ -2,11 +2,10 @@ import {
   Injectable,
   NotFoundException,
   Inject,
-  forwardRef,
-  UnauthorizedException
+  forwardRef
 } from '@nestjs/common'
-import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
-import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
+import { LimitPolicies } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
+import { AccessLevelPoliciesService } from '@src/modules/accessLevelPolicies/services/access-level-policies.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
 import { MailService } from '@src/services/mail/mail.service'
 
@@ -17,6 +16,7 @@ import {
   InterfaceUser,
   PublicInterfaceUser
 } from '../schemas/models/user.interface'
+import { UserLimitsService } from './user-limits.service'
 
 @Injectable()
 export class UserAdminService {
@@ -24,8 +24,12 @@ export class UserAdminService {
     private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => InvitationService))
     private readonly invitationService: InvitationService,
-    @Inject(forwardRef(() => UserLimitService))
-    private readonly userLimitService: UserLimitService,
+
+    @Inject(forwardRef(() => AccessLevelPoliciesService))
+    private readonly accessPoliciesService: AccessLevelPoliciesService,
+    @Inject(forwardRef(() => UserLimitsService))
+    private readonly userLimitService: UserLimitsService,
+
     @Inject(forwardRef(() => MailService))
     private readonly mailService: MailService
   ) {}
@@ -55,6 +59,24 @@ export class UserAdminService {
         console.error(`# error @ UserAdminService - user not created`)
         return
       }
+
+      const levelLimits = await this.accessPoliciesService.getByLevel(
+        newUser.accessLevel
+      )
+
+      if (!levelLimits) {
+        console.error(
+          '# error @ UserLimitService - access policy level not found',
+          newUser.accessLevel
+        )
+        return
+      }
+
+      await this.userLimitService.createUserLimits(newUser.id, {
+        activeHuntsLimit: levelLimits.activeHuntsLimit,
+        targetsPerHuntLimit: levelLimits.targetsPerHuntLimit,
+        invitationsLimit: levelLimits.invitationsLimit
+      })
 
       const invitation = await this.invitationService.addInvitation(
         operatorId,
@@ -87,22 +109,22 @@ export class UserAdminService {
     }
   }
 
-  async getUserPermissions(
-    userId: string
-  ): Promise<
-    Pick<
-      AccessLevelPoliciesInterface,
-      'activeHuntsLimit' | 'invitationsLimit' | 'targetsPerHuntLimit'
-    >
-  > {
-    const host = await this.userRepository.getById(userId)
-    if (!host) {
-      throw new UnauthorizedException('Host não encontrado')
+  async getUserPermissions(userId: string): Promise<LimitPolicies> {
+    try {
+      const availableLimits = await this.userLimitService.getByUser(userId)
+
+      if (!availableLimits) {
+        return {
+          activeHuntsLimit: 0,
+          invitationsLimit: 0,
+          targetsPerHuntLimit: 0
+        }
+      }
+
+      return availableLimits
+    } catch {
+      console.error('ERROR on geting user permissions')
     }
-
-    const currentLimits = await this.userLimitService.userAvailableLimits(host)
-
-    return currentLimits
   }
 
   async getAllUsers(): Promise<PublicInterfaceUser[]> {
@@ -111,10 +133,7 @@ export class UserAdminService {
 
   async getById(id: string): Promise<
     PublicInterfaceUser & {
-      permissions: Omit<
-        AccessLevelPoliciesInterface,
-        'level' | 'createdAt' | 'updatedAt'
-      >
+      permissions: LimitPolicies
     }
   > {
     const user = await this.userRepository.getById(id)
@@ -130,10 +149,7 @@ export class UserAdminService {
 
   async getByEmail(email: string): Promise<
     InterfaceUser & {
-      permissions: Omit<
-        AccessLevelPoliciesInterface,
-        'level' | 'createdAt' | 'updatedAt'
-      >
+      permissions: LimitPolicies
     }
   > {
     const user = await this.userRepository.getByEmail(email)
@@ -149,10 +165,7 @@ export class UserAdminService {
 
   async getByCPF(cpf: string): Promise<
     PublicInterfaceUser & {
-      permissions: Omit<
-        AccessLevelPoliciesInterface,
-        'level' | 'createdAt' | 'updatedAt'
-      >
+      permissions: LimitPolicies
     }
   > {
     const user = await this.userRepository.getByCPF(cpf)

@@ -46,18 +46,14 @@ import {
 } from '../../schemas/endpoints/public/get-users.public.schema'
 import { UpdateUserData } from '../../schemas/endpoints/public/update-user.public.schema'
 import { UserAdminService } from '../../services/user.admin.service'
-import { UserPublicService } from '../../services/user.public.service'
 
 @ApiTags('admin/users')
 @ApiBearerAuth()
+@UseGuards(AdminGuard)
 @UseInterceptors(LoggingInterceptor)
 @Controller('admin/users')
-@UseGuards(AdminGuard)
 export class UsersAdminController {
-  constructor(
-    private readonly userPublicService: UserPublicService,
-    private readonly userAdminService: UserAdminService
-  ) {}
+  constructor(private readonly userAdminService: UserAdminService) {}
 
   @UsePipes()
   @ApiOperation({ summary: 'Cria um novo usuário' })

@@ -15,6 +15,7 @@ import {
   UsePipes
 } from '@nestjs/common'
 import {
+  ApiBasicAuth,
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
@@ -58,11 +59,12 @@ import { UserPublicService } from '../services/user.public.service'
 @ApiTags('user')
 @UseInterceptors(LoggingInterceptor)
 @Controller('users')
+@ApiBasicAuth()
+@UseGuards(AppGuard)
 export class UsersController {
   constructor(private readonly userService: UserPublicService) {}
 
   @UsePipes()
-  @UseGuards(AppGuard)
   @ApiOperation({ summary: 'Atualiza dados do usuário' })
   @ApiBody({
     type: UpdateUserData,
@@ -87,7 +89,6 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({
     summary: 'Update dos dados do usuario no fluxo de boas vindas'
@@ -125,7 +126,6 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({ summary: 'Atualização de senha do usuário' })
   @ApiBody({
@@ -156,13 +156,15 @@ export class UsersController {
     }
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AppGuard)
   @UsePipes()
   @ApiOperation({ summary: 'Retorna as permissões do usuário' })
   @Get(':id/permissions')
   async getUserPermissions(@Param('id') id: string) {
     const permissions = await this.userService.getUserPermissions(id)
+
+    if (!permissions) {
+      throw new NotFoundException()
+    }
 
     return permissions
   }
@@ -253,8 +255,6 @@ export class UsersController {
     return await this.userService.inviteUser(invitedUser, user.id)
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AppGuard)
   @ApiOperation({ summary: 'Valida um convite' })
   @Get('/validate-invite/:invitation')
   async validateUserInvitation(@Param('invitation') invitation: string) {

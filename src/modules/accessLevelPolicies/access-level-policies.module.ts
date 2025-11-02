@@ -12,7 +12,6 @@ import {
   AccessLevelPoliciesSchema
 } from './schema/accessLevelPolicies.schema'
 import { AccessLevelPoliciesService } from './services/access-level-policies.service'
-import { UserLimitService } from './services/user-limit.service'
 
 @Module({
   imports: [
@@ -28,10 +27,9 @@ import { UserLimitService } from './services/user-limit.service'
       provide: AccessLevelPoliciesRepository,
       useClass: AccessLevelPoliciesMongooseRepository
     },
-    AccessLevelPoliciesService,
-    UserLimitService
+    AccessLevelPoliciesService
   ],
   controllers: [AccessLevelPoliciesController],
-  exports: [UserLimitService]
+  exports: [AccessLevelPoliciesService]
 })
 export class AccessLevelPoliciesModule {}
