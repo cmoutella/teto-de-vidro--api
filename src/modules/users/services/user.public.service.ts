@@ -82,6 +82,10 @@ export class UserPublicService {
         throw new Error('Error updating user password')
       }
 
+      if (newData.welcomeCompleted === true) {
+        this.invitationService.updateInvitation(userId, { status: 'accepted' })
+      }
+
       return updatedUser
     } catch (err) {
       if (err instanceof Error) {

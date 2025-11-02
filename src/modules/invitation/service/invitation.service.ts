@@ -4,6 +4,7 @@ import { AppService } from '@src/services/app.service'
 import { validateExpiration } from '@src/shared/utils/date/validate-expiration'
 
 import { InvitationRepository } from '../repositories/invitation.repository'
+import { InvitationInterface } from '../schema/model/invitation.interface'
 
 interface InviteTokenPayload {
   type: 'invitation'
@@ -78,7 +79,10 @@ export class InvitationService {
     }
   }
 
-  async updateInvitation(invitedUserId, data) {
+  async updateInvitation(
+    invitedUserId: string,
+    data: Partial<InvitationInterface>
+  ) {
     await this.invitationRepository.updateInvitation(invitedUserId, data)
   }
 
