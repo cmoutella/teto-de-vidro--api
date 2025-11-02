@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   Param,
   Post,
-  UseGuards,
   UseInterceptors,
   UsePipes
 } from '@nestjs/common'
@@ -16,8 +15,6 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import { AdminGuard } from '@src/shared/guards/admin.guard'
-import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
@@ -37,7 +34,7 @@ export class ApplicationUsersController {
   constructor(private readonly userService: ApplicationUserService) {}
 
   @ApiBearerAuth()
-  @UseGuards(AdminGuard)
+  // @UseGuards(AdminGuard)
   @UsePipes(new ZodValidationPipe(createApplicationSchema))
   @ApiOperation({ summary: 'Cria uma nova aplicação' })
   @ApiResponse({
@@ -86,7 +83,7 @@ export class ApplicationUsersController {
     description: 'Aplicação deletada com sucesso'
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Delete('/:name')
   async deleteApplication(@Param('name') name: string) {
     const app = await this.userService.getByName(name)
