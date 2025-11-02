@@ -74,6 +74,7 @@ export class AddressService {
       relatedLot = lot
     } else if (foundLots && foundLots.list.length >= 2) {
       // TODO: log / handle (fila?)
+      console.warn('WARN @ foundLots && lenght >= 2', foundLots)
     } else {
       relatedLot = foundLots.list[0]
     }
