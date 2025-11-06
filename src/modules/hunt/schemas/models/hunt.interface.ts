@@ -1,10 +1,3 @@
-export type HuntUserStatus = 'waiting' | 'accepted'
-
-export interface HuntUser {
-  id: string
-  name: string
-  status: HuntUserStatus
-}
 export interface InterfaceHunt {
   id?: string
   isActive?: boolean
@@ -19,7 +12,7 @@ export interface InterfaceHunt {
   minBudget?: number
   maxBudget?: number
   targets?: string[]
-  huntUsers?: HuntUser[]
+  participants?: number
 }
 
 export type CreateHuntServiceDate = Omit<

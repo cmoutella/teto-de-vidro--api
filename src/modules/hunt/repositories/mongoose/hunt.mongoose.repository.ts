@@ -73,22 +73,22 @@ export class HuntMongooseRepository implements HuntRepository {
     return result
   }
 
-  async getAllActiveHuntsByUser(
-    userId: string,
+  async getActiveHunts(
+    ids: string[],
     page = 1,
     limit = DEFAULT_LIMIT
   ): Promise<PaginatedData<InterfaceHunt>> {
     const offset = (page - 1) * limit
 
     const foundHunts = await this.huntModel
-      .find({ 'huntUsers.id': userId, isActive: true })
+      .find({ _id: { $in: ids }, isActive: true })
       .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceHunt>[]>()
       .exec()
 
     const totalItems = await this.huntModel.countDocuments({
-      'huntUsers.id': userId,
+      _id: { $in: ids },
       isActive: true
     })
 
@@ -157,6 +157,21 @@ export class HuntMongooseRepository implements HuntRepository {
 
     if (!found) {
       return null
+    }
+
+    const { _id, __v, ...otherData } = found
+
+    return { id: _id.toString(), ...otherData }
+  }
+
+  async getActiveHuntById(id: string): Promise<InterfaceHunt> {
+    const found = await this.huntModel
+      .findOne({ _id: id, isActive: true })
+      .lean<LeanDoc<InterfaceHunt>>()
+      .exec()
+
+    if (!found) {
+      return
     }
 
     const { _id, __v, ...otherData } = found

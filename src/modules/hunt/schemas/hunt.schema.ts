@@ -11,25 +11,6 @@ export enum HuntTypeEnum {
   either = 'either'
 }
 
-export enum InvitationStatusEnum {
-  waiting = 'waiting',
-  accepted = 'accepted'
-}
-
-export class HuntUserDto {
-  @ApiProperty()
-  @Prop()
-  id: string
-
-  @ApiProperty()
-  @Prop()
-  name: string
-
-  @ApiProperty()
-  @Prop({ type: String, enum: Object.values(InvitationStatusEnum) })
-  status: InvitationStatusEnum
-}
-
 @Schema()
 export class Hunt implements InterfaceHunt {
   @ApiProperty()
@@ -54,9 +35,9 @@ export class Hunt implements InterfaceHunt {
   @ApiProperty({ isArray: true, type: String })
   @Prop()
   targets: string[]
-  @ApiProperty({ required: true, isArray: true, type: HuntUserDto })
-  @Prop({ required: true, isArray: true, type: HuntUserDto })
-  huntUsers: HuntUserDto[]
+  @ApiPropertyOptional()
+  @Prop()
+  participants?: number
   @ApiProperty()
   @Prop()
   isActive: boolean
