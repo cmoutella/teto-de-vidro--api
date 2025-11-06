@@ -25,6 +25,7 @@ import {
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
+import { GetAllUsersSuccess } from '@src/modules/users/schemas/endpoints/public/get-users.public.schema'
 import { UserPublicService } from '@src/modules/users/services/user.public.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
 
@@ -41,7 +42,7 @@ import {
   UpdateHuntSuccess
 } from '../schemas/endpoints/updateHunt'
 import { Hunt } from '../schemas/hunt.schema'
-import { HuntUser, HuntUserStatus } from '../schemas/models/hunt.interface'
+import { HuntInvitationResult } from '../schemas/models/hunt-user.interface'
 import {
   CreateHunt,
   createHuntSchema
@@ -92,12 +93,10 @@ export class HuntController {
     }: CreateHunt,
     @CurrentUser() user: AuthenticatedUser
   ) {
-    const currentUser = await this.userService.getById(user.id)
-
     return await this.huntService.createHunt({
       title,
       creatorId: user.id,
-      huntUsers: [{ id: user.id, name: currentUser.name, status: 'accepted' }],
+      participants: 1,
       livingPeople,
       livingPets,
       movingExpected,
@@ -133,47 +132,112 @@ export class HuntController {
       throw new NotFoundException('Hunt não encontrada')
     }
 
-    const alreadyUsersCheck = await Promise.all(
-      body.usersInvited.map((user) => this.userService.getByEmail(user.email))
-    )
+    const results = await Promise.all(
+      body.usersInvited.map(async (invitee) => {
+        try {
+          // app users
+          const alreadyUser = await this.userService.getByEmail(invitee.email)
+          if (alreadyUser) {
+            const inHunt = await this.huntService.findUserInHunt(
+              foundHunt.id,
+              alreadyUser.id
+            )
 
-    const alreadyUsers = alreadyUsersCheck.filter((user) => user && user.id)
-    const alreadyUsersEmails = new Set(alreadyUsers.map((user) => user.email))
+            if (inHunt) {
+              return {
+                email: invitee.email,
+                status: 'already-in-hunt',
+                message: 'Usuário já faz parte da busca'
+              } as HuntInvitationResult
+            }
 
-    const toInvite = body.usersInvited.filter(
-      (user) => !alreadyUsersEmails.has(user.email)
-    )
+            const invitedToHunt = await this.huntService.addUserToHunt(
+              foundHunt.id,
+              alreadyUser.id
+            )
+            if (invitedToHunt) {
+              return {
+                email: invitee.email,
+                status: 'added',
+                message: 'Usuário adicionado à busca'
+              } as HuntInvitationResult
+            }
+            return {
+              email: invitee.email,
+              status: 'error',
+              message: 'Erro ao tentat adicionar à busca'
+            } as HuntInvitationResult
+          }
 
-    const invited = await Promise.all(
-      toInvite.map((inUser) => this.userService.inviteUser(inUser, user.id))
-    )
+          // not app users yet
+          const invitedToApp = await this.userService.inviteUser(
+            invitee,
+            user.id
+          )
+          if (invitedToApp?.id) {
+            await this.huntService.addUserToHunt(foundHunt.id, invitedToApp.id)
+            return {
+              email: invitee.email,
+              status: 'invited',
+              message: 'Usuário convidado'
+            } as HuntInvitationResult
+          }
 
-    const merged = [
-      ...foundHunt.huntUsers,
-      ...(alreadyUsers.map((u) => {
-        return {
-          id: u.id,
-          name: u.name,
-          status: 'accepted'
+          return {
+            email: invitee.email,
+            status: 'error',
+            message: 'Erro ao convidar usuário'
+          } as HuntInvitationResult
+        } catch (err) {
+          return {
+            email: invitee.email,
+            status: 'error',
+            message: (err as Error).message
+          } as HuntInvitationResult
         }
-      }) as HuntUser[]),
-      ...(invited.map((u) => {
-        return {
-          id: u.id,
-          name: u.name,
-          status: 'waiting' as HuntUserStatus
-        }
-      }) as HuntUser[])
-    ]
-    const uniqueInvitedUsers = Array.from(
-      new Map(merged.map((item) => [item.id, item])).values()
+      })
     )
 
-    const updated = await this.huntService.updateHunt(id, {
-      huntUsers: uniqueInvitedUsers
-    })
+    return results
+  }
 
-    return updated
+  @ApiOperation({ summary: 'Busca os participantes da hunt' })
+  @ApiResponse({
+    type: GetAllUsersSuccess,
+    status: 201,
+    description: 'Usuários da hunt encontrados com sucesso'
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get(':id/participants')
+  async getParticipants(@Param('id') id: string) {
+    const foundHunt = await this.huntService.getOneHuntById(id)
+
+    if (!foundHunt) {
+      throw new NotFoundException('Hunt não encontrada')
+    }
+
+    const participants = await this.huntService.getAllUsersInHunt(id)
+
+    const users = await Promise.all(
+      participants.map((p) => this.userService.getById(p.userId))
+    )
+
+    return users
+      .filter((u) => !!u.welcomeCompleted)
+      .map((u) => {
+        return { name: u.name, familyName: u.familyName, id: u.id }
+      })
+  }
+
+  @Delete(':id/participants')
+  async removeParticipant(
+    @Param('id') id: string,
+    @Query('userId') userId: string
+  ) {
+    const removed = await this.huntService.removeUserFromHunt(userId, id)
+
+    return removed
   }
 
   @ApiOperation({ summary: 'Busca de caçada por id' })
@@ -199,13 +263,28 @@ export class HuntController {
       throw new NotFoundException('Hunt não encontrada')
     }
 
-    const validated = await this.huntService.validateUserAccess(user.id, id)
+    if (user.role !== 'admin') {
+      const validated = await this.huntService.validateUserAccess(user.id, id)
 
-    if (!validated) {
-      throw new UnauthorizedException('Usuário sem permissão nesta hunt')
+      if (!validated) {
+        throw new UnauthorizedException('Usuário sem permissão nesta hunt')
+      }
     }
 
-    return found
+    const participants = await this.huntService.getAllUsersInHunt(id)
+
+    const users = await Promise.all(
+      participants.map((p) => this.userService.getById(p.userId))
+    )
+
+    return {
+      ...found,
+      huntUsers: users
+        .filter((u) => !!u.welcomeCompleted)
+        .map((u) => {
+          return { name: u.name, familyName: u.familyName, id: u.id }
+        })
+    }
   }
 
   @ApiOperation({ summary: 'Atualização de uma caçada' })
