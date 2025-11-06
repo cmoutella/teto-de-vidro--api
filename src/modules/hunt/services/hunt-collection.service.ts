@@ -31,6 +31,8 @@ export class HuntService {
         created.id
       )
     }
+
+    return created
   }
 
   async getOneHuntById(id: string): Promise<InterfaceHunt | undefined> {
@@ -67,9 +69,9 @@ export class HuntService {
 
   // hunt users
   async addParticipant(huntId) {
-    const currentHunt = await this.getOneHuntById(huntId)
+    const currentHunt = await this.huntRepository.getOneHuntById(huntId)
 
-    await this.updateHunt(huntId, {
+    return await this.huntRepository.updateHunt(huntId, {
       participants: (currentHunt.participants ?? 0) + 1
     })
   }
@@ -77,7 +79,7 @@ export class HuntService {
   async removeParticipant(huntId) {
     const currentHunt = await this.getOneHuntById(huntId)
 
-    await this.updateHunt(huntId, {
+    return await this.updateHunt(huntId, {
       participants: (currentHunt.participants ?? 0) - 1
     })
   }
