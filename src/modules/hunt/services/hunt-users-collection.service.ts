@@ -73,13 +73,21 @@ export class HuntUsersService {
   }
 
   async getAllRelationshipsByUser(
+    userId: string
+  ): Promise<HuntUserInterface[] | undefined> {
+    if (!userId) return undefined
+
+    return await this.huntUsersRepository.getRelationshipsByUser(userId)
+  }
+
+  async getAllRelationshipsByUserPaginated(
     userId: string,
     page?: number,
     limit?: number
   ): Promise<PaginatedData<HuntUserInterface> | undefined> {
     if (!userId) return undefined
 
-    return await this.huntUsersRepository.getRelationshipsByUser(
+    return await this.huntUsersRepository.getRelationshipsByUserPaginated(
       userId,
       page,
       limit

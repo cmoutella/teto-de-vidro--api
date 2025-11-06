@@ -14,14 +14,14 @@ export abstract class HuntUsersRepository {
   ): Promise<HuntUserInterface>
 
   abstract getRelationshipsByHunt(huntId: string): Promise<HuntUserInterface[]>
-
   abstract getRelationshipsByHuntPaginated(
     huntId: string,
     page?: number,
     limit?: number
   ): Promise<PaginatedData<HuntUserInterface>>
 
-  abstract getRelationshipsByUser(
+  abstract getRelationshipsByUser(userId: string): Promise<HuntUserInterface[]>
+  abstract getRelationshipsByUserPaginated(
     userId: string,
     page?: number,
     limit?: number

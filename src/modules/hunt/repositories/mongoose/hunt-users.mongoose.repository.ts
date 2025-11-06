@@ -96,7 +96,20 @@ export class HuntUsersMongooseRepository implements HuntUsersRepository {
     return result
   }
 
-  async getRelationshipsByUser(
+  async getRelationshipsByUser(userId: string): Promise<HuntUserInterface[]> {
+    const foundRelationships = await this.huntUserModel
+      .find({ userId: userId })
+      .lean<LeanDoc<HuntUserInterface>[]>()
+      .exec()
+
+    return foundRelationships.map((hunt) => {
+      const { _id, __v, ...otherData } = hunt
+
+      return { id: _id.toString(), ...otherData }
+    })
+  }
+
+  async getRelationshipsByUserPaginated(
     userId: string,
     page = 1,
     limit = DEFAULT_LIMIT
